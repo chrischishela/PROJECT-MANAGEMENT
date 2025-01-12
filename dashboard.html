@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
+            
     font-family: Arial, sans-serif;
     margin: 0;
     background-color: #f4f4f4;
@@ -63,6 +64,9 @@
     background-color: #2980b9;
     color: white;
     padding: 10px 20px;
+    position: sticky;  /* Make the header sticky */
+    top: 0;            /* Stick it to the top of the viewport */
+    z-index: 1000;     /* Ensure it stays on top of other elements */
 }
 
 .notification {
@@ -183,7 +187,7 @@ tr:hover {
             <li><a href="Tool.html"><i class="fas fa-box"></i> Tools</a></li>
             <li><a href="Chris.html"><i class="fas fa-box"></i> Chris</a></li>
             <li><a href="purchases.html"><i class="fas fa-sign-out-alt"></i> Purchases</a></li>
-            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
 
@@ -255,149 +259,163 @@ tr:hover {
             </table>
         </div>
     </div>
+    
 
 
 
 
-    <script>
-        // Fetch Unassigned Staff
-        function fetchUnassignedStaff() {
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
-            const unassignedEmployees = employees.filter(employee => employee.status === 'Unassigned');
-            const tableBody = document.getElementById('unassignedStaffTable');
-            tableBody.innerHTML = '';
-            unassignedEmployees.forEach(employee => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).innerText = employee.name;
-                row.insertCell(1).innerText = employee.position;
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"></script>
+
+<script>
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDxQ9ai-C2RlJy27p_kdHkXeqz1Cpbyh4",
+        authDomain: "project-app-58ff6.firebaseapp.com",
+        projectId: "project-app-58ff6",
+        storageBucket: "project-app-58ff6.appspot.com",
+        messagingSenderId: "586923989952",
+        appId: "1:586923989952:web:72b300dbc00d830e2e462"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Ensure only authenticated users access the dashboard
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            alert("You are not logged in! Redirecting to login page.");
+            window.location.href = "login.html"; // Replace with your login page path
+        }
+    });
+
+    // Logout function
+    function logout() {
+        auth.signOut()
+            .then(() => {
+                alert("Logged out successfully!");
+                window.location.href = "login.html"; // Redirect to login page
+            })
+            .catch((error) => {
+                console.error("Logout failed:", error.message);
             });
-        }
-    
-        // Fetch Active Tasks
-        function fetchActiveTasks() {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const activeTasks = tasks.filter(task => task.status === 'Active');
-            const tableBody = document.getElementById('activeTasksTable');
-            tableBody.innerHTML = '';
-            activeTasks.forEach(task => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).innerText = task.projectName;
-                row.insertCell(1).innerText = task.taskDescription;
-                row.insertCell(2).innerText = task.assignedTo;
-                row.insertCell(3).innerText = task.startDate;
-                row.insertCell(4).innerText = task.priority;
-            });
-        }
-    
-        // Update Notifications
-        function updateNotifications() {
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            const badge = document.getElementById('notificationBadge');
-            const notificationsList = document.getElementById('notificationsList');
-    
-            console.log("Loaded notifications:", notifications);  // Debug: Check loaded notifications
-    
-            if (notifications.length > 0) {
-                badge.textContent = notifications.length;
-                badge.style.display = 'inline';
-                notificationsList.innerHTML = '';  // Clear existing notifications
-    
-                notifications.forEach((notification, index) => {
-                    const listItem = document.createElement('li');
-                    const message = notification.message || "No message available";  // Fallback if message is empty
-                    listItem.innerText = message;  // Set the message text
-                    const markReadButton = document.createElement('button');
-                    markReadButton.textContent = 'Mark as Read';
-                    markReadButton.style.marginLeft = '10px';
-                    markReadButton.onclick = () => markAsRead(index);
-                    listItem.appendChild(markReadButton);
-                    notificationsList.appendChild(listItem);
-                });
-            } else {
-                badge.style.display = 'none';
-                notificationsList.innerHTML = '<li>No new notifications</li>';  // Show "No new notifications" if empty
-            }
-        }
-    
-        // Mark Notification as Read and Remove It
-        function markAsRead(index) {
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            notifications.splice(index, 1);  // Remove the notification at the specified index
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotifications();  // Refresh the notifications list
-        }
-    
-        // Add Task Start Notification
-        function taskStarted(taskId) {
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            notifications.push({ id: taskId, message: `Task ${taskId} has started.` });
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotifications();
-        }
-    
-        // Add Task Completed Notification
-        function taskCompleted(taskId) {
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            notifications.push({ id: taskId, message: `Task ${taskId} is completed.` });
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotifications();
-        }
-    
-        // Simulate a new purchase and add a notification
-        function newPurchase(item) {
-            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-            notifications.push({ id: item.id, message: `New purchase made: ${item.name}` });
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotifications();
-        }
-    
-        // Simulate a purchase action
-        function simulatePurchase() {
-            const newItem = { id: 1, name: 'New Material' };
-            newPurchase(newItem);
-        }
-    
-        // Event listeners for starting and completing tasks
-        document.addEventListener('DOMContentLoaded', () => {
-            // Make sure notifications are initially set if not present in localStorage
-            if (!localStorage.getItem('notifications')) {
-                localStorage.setItem('notifications', JSON.stringify([
-                    { id: 1, message: 'Task A is overdue.' },
-                    { id: 2, message: 'New material added to inventory.' },
-                    { id: 3, message: 'Employee X has been unassigned.' }
-                ]));
-            }
-    
-            fetchUnassignedStaff();
-            fetchActiveTasks();
-            updateNotifications();
-    
-            // Example actions to simulate task start, task completion, and a purchase
-            taskStarted(4);  // Simulate task start for task with ID 4
-            taskCompleted(5);  // Simulate task completion for task with ID 5
-            simulatePurchase();  // Simulate a new purchase action
-    
-            // Add event listener to toggle the visibility of notifications when clicked
-            const badge = document.getElementById('notificationBadge');
-            const notificationsContainer = document.getElementById('notificationsContainer');
-    
-            badge.addEventListener('click', () => {
-                // Toggle the visibility of the notifications container
-                notificationsContainer.style.display = notificationsContainer.style.display === 'block' ? 'none' : 'block';
-            });
+    }
+
+    // Fetch Unassigned Staff
+    function fetchUnassignedStaff() {
+        const employees = JSON.parse(localStorage.getItem('employees')) || [];
+        const unassignedEmployees = employees.filter(employee => employee.status === 'Unassigned');
+        const tableBody = document.getElementById('unassignedStaffTable');
+        tableBody.innerHTML = '';
+        unassignedEmployees.forEach(employee => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).innerText = employee.name;
+            row.insertCell(1).innerText = employee.position;
         });
-    </script>
-    
-    <!-- HTML for Notifications -->
-    <div id="notificationBar">
-        <span id="notificationBadge" style="cursor: pointer;">0</span> Notifications
-    </div>
-    
-    <!-- Notifications Dropdown -->
-    <div id="notificationsContainer" style="display: none; border: 1px solid #ccc; padding: 10px; width: 200px; background-color: white;">
-        <ul id="notificationsList"></ul>
-    </div>
-    
+    }
+
+    // Fetch Active Tasks
+    function fetchActiveTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const activeTasks = tasks.filter(task => task.status === 'Active');
+        const tableBody = document.getElementById('activeTasksTable');
+        tableBody.innerHTML = '';
+        activeTasks.forEach(task => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).innerText = task.projectName;
+            row.insertCell(1).innerText = task.taskDescription;
+            row.insertCell(2).innerText = task.assignedTo;
+            row.insertCell(3).innerText = task.startDate;
+            row.insertCell(4).innerText = task.priority;
+        });
+    }
+
+    // Update Notifications
+    function updateNotifications() {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        const badge = document.getElementById('notificationBadge');
+        const notificationsList = document.getElementById('notificationsList');
+
+        if (notifications.length > 0) {
+            badge.textContent = notifications.length;
+            badge.style.display = 'inline';
+            notificationsList.innerHTML = '';
+
+            notifications.forEach((notification, index) => {
+                const listItem = document.createElement('li');
+                const message = notification.message || "No message available";
+                listItem.innerText = message;
+                const markReadButton = document.createElement('button');
+                markReadButton.textContent = 'Mark as Read';
+                markReadButton.style.marginLeft = '10px';
+                markReadButton.onclick = () => markAsRead(index);
+                listItem.appendChild(markReadButton);
+                notificationsList.appendChild(listItem);
+            });
+        } else {
+            badge.style.display = 'none';
+            notificationsList.innerHTML = '<li>No new notifications</li>';
+        }
+    }
+
+    function markAsRead(index) {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        notifications.splice(index, 1);
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+        updateNotifications();
+    }
+
+    function taskStarted(taskId) {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        notifications.push({ id: taskId, message: `Task ${taskId} has started.` });
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+        updateNotifications();
+    }
+
+    function taskCompleted(taskId) {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        notifications.push({ id: taskId, message: `Task ${taskId} is completed.` });
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+        updateNotifications();
+    }
+
+    function newPurchase(item) {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        notifications.push({ id: item.id, message: `New purchase made: ${item.name}` });
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+        updateNotifications();
+    }
+
+    function simulatePurchase() {
+        const newItem = { id: 1, name: 'New Material' };
+        newPurchase(newItem);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('notifications')) {
+            localStorage.setItem('notifications', JSON.stringify([
+                { id: 1, message: 'Task A is overdue.' },
+                { id: 2, message: 'New material added to inventory.' },
+                { id: 3, message: 'Employee X has been unassigned.' }
+            ]));
+        }
+
+        fetchUnassignedStaff();
+        fetchActiveTasks();
+        updateNotifications();
+
+        taskStarted(4);
+        taskCompleted(5);
+        simulatePurchase();
+
+        const badge = document.getElementById('notificationBadge');
+        const notificationsContainer = document.getElementById('notificationsContainer');
+
+        badge.addEventListener('click', () => {
+            notificationsContainer.style.display = notificationsContainer.style.display === 'block' ? 'none' : 'block';
+        });
+    });
+</script>
+
     
 
 </body>
