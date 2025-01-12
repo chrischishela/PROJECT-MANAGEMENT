@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penta Construction Login</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: url('Photos/0268da23-3cd8-4e19-bb47-0f12210a56f4.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .login-container {
+      background: rgba(8, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+    }
+
+    .login {
+      display: block;
+      margin: 0 auto 20px;
+      width: 150px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .password-container input {
+      padding-right: 40px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2em;
+      color: #ccc;
+    }
+
+    .warning {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .penta {
+      color: white;
+    }
+  </style>
+
+  <script>
+    function login() {
+      const username = document.getElementById("username").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+
+      const validUsers = [
+        { username: "faiyaz mulla", password: "PENTACON" },
+        { username: "christopher chishela", password: "PENTACON" }
+      ];
+
+      const isValid = validUsers.some(user => user.username === username && user.password === password);
+
+      const warningMessage = document.getElementById("warningMessage");
+
+      if (isValid) {
+        window.location.href = 'dashboard.html';
+      } else {
+        warningMessage.style.display = "block"; // Show warning message
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById("password");
+      const toggleIcon = document.getElementById("togglePasswordIcon");
+
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.textContent = "🙈"; // Change to "hide" icon
+      } else {
+        passwordField.type = "password";
+        toggleIcon.textContent = "👁️"; // Change to "show" icon
+      }
+    }
+  </script>
+</head>
+
+<body>
+
+  <div class="login-container">
+    <img class="login" src="Photos/logo.png" alt="Penta Construction Logo">
+    <p class="penta">PENTA CONSTRUCTION</p>
+    <input type="text" id="username" placeholder="User Name">
+    <div class="password-container">
+      <input type="password" id="password" placeholder="Password">
+      <span class="toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></span>
+    </div>
+    <p class="warning" id="warningMessage">Invalid username or password. Please try again.</p>
+    <button onclick="login()">Login</button>
+  </div>
+
+</body>
+
+</html>
