@@ -114,16 +114,22 @@
       const username = document.getElementById("username").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
 
+      console.log('Username:', username);
+      console.log('Password:', password);
+
       const validUsers = [
         { username: "faiyaz mulla", password: "PENTACON" },
         { username: "christopher chishela", password: "PENTACON" }
       ];
 
       const isValid = validUsers.some(user => user.username === username && user.password === password);
+      console.log('Is Valid:', isValid);
 
       const warningMessage = document.getElementById("warningMessage");
 
       if (isValid) {
+        console.log("Valid login, saving to Firebase and redirecting...");
+
         // Save login attempt data to Firebase
         const loginRef = ref(database, 'loginAttempts');
         push(loginRef, {
@@ -134,6 +140,7 @@
         // Redirect to dashboard
         window.location.href = 'dashboard.html';
       } else {
+        console.log("Invalid login attempt");
         warningMessage.style.display = "block"; // Show warning message
       }
     };
