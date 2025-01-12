@@ -109,13 +109,11 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Function to login and save data to Firebase
-    window.login = function () {
+    // Function to handle login
+    async function login() {
       const username = document.getElementById("username").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
-
-      console.log('Username:', username);
-      console.log('Password:', password);
+      const warningMessage = document.getElementById("warningMessage");
 
       const validUsers = [
         { username: "faiyaz mulla", password: "PENTACON" },
@@ -123,12 +121,9 @@
       ];
 
       const isValid = validUsers.some(user => user.username === username && user.password === password);
-      console.log('Is Valid:', isValid);
-
-      const warningMessage = document.getElementById("warningMessage");
 
       if (isValid) {
-        console.log("Valid login, saving to Firebase and redirecting...");
+        console.log("Valid login detected, redirecting to dashboard...");
 
         // Save login attempt data to Firebase
         const loginRef = ref(database, 'loginAttempts');
@@ -137,16 +132,16 @@
           timestamp: new Date().toISOString()
         });
 
-        // Redirect to dashboard
+        // Redirect to dashboard.html
         window.location.href = 'dashboard.html';
       } else {
         console.log("Invalid login attempt");
         warningMessage.style.display = "block"; // Show warning message
       }
-    };
+    }
 
     // Function to toggle password visibility
-    window.togglePasswordVisibility = function () {
+    function togglePasswordVisibility() {
       const passwordField = document.getElementById("password");
       const toggleIcon = document.getElementById("togglePasswordIcon");
 
@@ -157,7 +152,11 @@
         passwordField.type = "password";
         toggleIcon.textContent = "👁️"; // Change to "show" icon
       }
-    };
+    }
+
+    // Export functions to global scope
+    window.login = login;
+    window.togglePasswordVisibility = togglePasswordVisibility;
   </script>
 
 </head>
