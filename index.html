@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>Penta Construction Login</title>
@@ -27,13 +27,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 100%;
-            max-width: 400px; /* Max width to ensure it doesn’t stretch too wide on large screens */
-        }
-
-        .login {
-            display: block;
-            margin: 0 auto 20px;
-            width: 150px;
+            max-width: 400px;
         }
 
         input[type="text"],
@@ -90,22 +84,11 @@
         .penta {
             color: white;
         }
-
-        /* Media Query for smaller screens (mobile) */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .login-container {
-                width: 100%;
-                max-width: 90%;
-            }
-        }
     </style>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js"></script>
 </head>
 
@@ -114,51 +97,52 @@
     <div class="login-container">
         <img class="login" src="Photos/logo.png" alt="Penta Construction Logo">
         <p class="penta">PENTA CONSTRUCTION</p>
-        <input type="text" id="username" placeholder="User Name">
+        <input type="text" id="email" placeholder="Email">
         <div class="password-container">
             <input type="password" id="password" placeholder="Password">
             <span class="toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()">👁️</span>
         </div>
-        <p class="warning" id="warningMessage">Invalid username or password. Please try again.</p>
+        <p class="warning" id="warningMessage">Invalid email or password. Please try again.</p>
         <button onclick="login()">Login</button>
     </div>
 
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID",
-            measurementId: "YOUR_MEASUREMENT_ID"
+            apiKey: "AIzaSyDxQ9ai-C2RlJy27p_kdHkXeqz1Cpbyh4",
+            authDomain: "project-app-58ff6.firebaseapp.com",
+            projectId: "project-app-58ff6",
+            storageBucket: "project-app-58ff6.firebasestorage.app",
+            messagingSenderId: "586923989952",
+            appId: "1:586923989952:web:72b300dbc00d830e2e4625",
+            measurementId: "G-HV80KTBWSR"
         };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const analytics = firebase.analytics();
+        const auth = firebase.auth();
 
+        // Login function
         function login() {
-            const username = document.getElementById("username").value.trim().toLowerCase();
+            const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
 
-            const validUsers = [
-                { username: "faiyaz mulla", password: "PENTACON" },
-                { username: "christopher chishela", password: "PENTACON" }
-            ];
-
-            const isValid = validUsers.some(user => user.username === username && user.password === password);
-
-            const warningMessage = document.getElementById("warningMessage");
-
-            if (isValid) {
-                window.location.href = 'dashboard.html';
-            } else {
-                warningMessage.style.display = "block"; // Show warning message
-            }
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Login successful, redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                })
+                .catch((error) => {
+                    // Show error message
+                    const warningMessage = document.getElementById("warningMessage");
+                    warningMessage.style.display = "block";
+                    warningMessage.textContent = "Invalid email or password. Please try again.";
+                    console.error("Error during login:", error.message);
+                });
         }
 
+        // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordField = document.getElementById("password");
             const toggleIcon = document.getElementById("togglePasswordIcon");
