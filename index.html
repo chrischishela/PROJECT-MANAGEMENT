@@ -89,28 +89,28 @@
   </style>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  <script>
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDxQ9ai-C2RlJy27p_kdHkKXeqz1Cpbyh4",
       authDomain: "project-app-58ff6.firebaseapp.com",
       databaseURL: "https://project-app-58ff6-default-rtdb.firebaseio.com",
       projectId: "project-app-58ff6",
-      storageBucket: "project-app-58ff6.firebasestorage.app",
+      storageBucket: "project-app-58ff6.appspot.com",
       messagingSenderId: "586923989952",
       appId: "1:586923989952:web:72b300dbc00d830e2e4625",
       measurementId: "G-HV80KTBWSR"
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
     // Function to login and save data to Firebase
-    function login() {
+    window.login = function () {
       const username = document.getElementById("username").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
 
@@ -125,20 +125,21 @@
 
       if (isValid) {
         // Save login attempt data to Firebase
-        const loginRef = database.ref('loginAttempts');
-        loginRef.push({
+        const loginRef = ref(database, 'loginAttempts');
+        push(loginRef, {
           username: username,
           timestamp: new Date().toISOString()
         });
 
+        // Redirect to dashboard
         window.location.href = 'dashboard.html';
       } else {
         warningMessage.style.display = "block"; // Show warning message
       }
-    }
+    };
 
     // Function to toggle password visibility
-    function togglePasswordVisibility() {
+    window.togglePasswordVisibility = function () {
       const passwordField = document.getElementById("password");
       const toggleIcon = document.getElementById("togglePasswordIcon");
 
@@ -149,7 +150,7 @@
         passwordField.type = "password";
         toggleIcon.textContent = "👁️"; // Change to "show" icon
       }
-    }
+    };
   </script>
 
 </head>
@@ -162,7 +163,7 @@
     <input type="text" id="username" placeholder="User Name">
     <div class="password-container">
       <input type="password" id="password" placeholder="Password">
-      <span class="toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()"></span>
+      <span class="toggle-password" id="togglePasswordIcon" onclick="togglePasswordVisibility()">👁️</span>
     </div>
     <p class="warning" id="warningMessage">Invalid username or password. Please try again.</p>
     <button onclick="login()">Login</button>
