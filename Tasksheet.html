@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Sheet</title>
-    <head>
-        <!-- Other head content like title, meta tags, etc. -->
-    
-        <!-- Add Firebase SDK -->
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
-    </head>
-    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -137,6 +129,228 @@
             background-color: #090b09;
         }
     </style>
+    <!-- Add Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Get elements from the DOM
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskModal = document.getElementById('taskModal');
+        const closeModal = document.getElementById('closeModal');
+        const taskForm = document.getElementById('taskForm');
+        const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+        const viewCompletedBtn = document.getElementById('viewCompletedBtn');
+        const viewAllBtn = document.getElementById('viewAllBtn');
+        const filterProjectDropdown = document.getElementById('filterProjectDropdown');
+
+        const projectNames = [
+            "Hazida Limited", "Hazida Motors", "Hazida Foods", "Freight and Passengers", 
+            "Lumumba Showroom Ezone", "Manda Hill Ezone Store", "Cento Ezone Store", 
+            "Cosmopolitan Ezone Store", "Trident Ezone Store", "Kitwe Ezone Store", 
+            "Livingstone Ezone Store", "Mr Mussa", "Mr Ebrahim", "Madam Shirin", 
+            "Mr Ishmil", "Mr Shabbir", "Mr Riaz", "Mr Faiyaz", "Northmeads Flats 1", 
+            "Northmeads Flats 2", "Fields Works"
+        ];
+
+        const employees = [
+            "BRIGHTON MATOLOKOSH", "CAPHAS TEMBO", "CLISHA MAMBILIMA", "DABSON DAKA", 
+            "DANNY MVULA", "JAMES DAKA", "JOSEPH TEMBO", "LUCKSON PHIRI", "MICHEAL LOBELA", 
+            "OBERT SIAME", "DOMINIC SAKALA", "PETER MAWERE", "SAVIOUR PHIRI", 
+            "TEMBEYA SAKALA", "KEVIN SIAME"
+        ];
+
+        // Load tasks from Firebase
+        function loadTasks() {
+            const tasksRef = ref(db, 'tasks/');
+            onValue(tasksRef, (snapshot) => {
+                const data = snapshot.val();
+                tasks = data ? Object.values(data) : [];
+                updateTable();
+            });
+        }
+
+        // Save tasks to Firebase
+        function saveTask(task) {
+            const tasksRef = ref(db, 'tasks/');
+            const newTaskRef = push(tasksRef);
+            set(newTaskRef, task);
+        }
+
+        // Update tasks and completed tasks in Firebase
+        function updateTask(task, taskKey) {
+            const taskRef = ref(db, `tasks/${taskKey}`);
+            update(taskRef, task);
+        }
+
+        // Remove completed tasks from Firebase
+        function removeCompletedTask(taskKey) {
+            const taskRef = ref(db, `tasks/${taskKey}`);
+            remove(taskRef);
+        }
+
+        // Event listeners for adding tasks and closing the modal
+        addTaskBtn.addEventListener('click', () => {
+            taskModal.style.display = 'block';
+            populateProjectDropdown(); // Populate project dropdown when modal is shown
+        });
+
+        closeModal.addEventListener('click', () => {
+            taskModal.style.display = 'none';
+        });
+
+        taskForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const projectName = document.getElementById('projectName').value;
+            const taskDescription = document.getElementById('taskDescription').value;
+            const location = document.getElementById('location').value;
+            const priority = document.getElementById('priority').value;
+
+            const newTask = {
+                projectName,
+                taskDescription,
+                location,
+                priority,
+                assignedTo: '',  // Initially no resource assigned
+                status: 'Inactive',
+                startDate: '',
+                endDate: ''
+            };
+
+            saveTask(newTask);
+            taskModal.style.display = 'none';
+            taskForm.reset();
+        });
+
+        // Update the task table with active tasks
+        function updateTable(filteredTasks = tasks) {
+            taskTable.innerHTML = ''; // Clear the table
+
+            filteredTasks.forEach((task, index) => {
+                const row = taskTable.insertRow();
+                row.insertCell(0).innerText = task.projectName;
+                row.insertCell(1).innerText = task.taskDescription;
+                row.insertCell(2).innerText = task.location;
+                row.insertCell(3).innerText = task.priority;
+                row.insertCell(4).innerText = task.status;
+
+                // Assigned To column with text input
+                const assignedToCell = row.insertCell(5);
+                const assignedToInput = document.createElement('input');
+                assignedToInput.type = 'text';
+                assignedToInput.value = task.assignedTo || ''; // Set current value if exists
+                assignedToInput.placeholder = 'Type name here...';
+
+                // Lock input for completed tasks
+                if (task.status === 'Completed') {
+                    assignedToInput.disabled = true;
+                } else {
+                    assignedToInput.addEventListener('input', (event) => {
+                        task.assignedTo = event.target.value;
+                        updateTask(task, index);
+                    });
+                }
+                assignedToCell.appendChild(assignedToInput);
+
+                row.insertCell(6).innerText = task.startDate || 'N/A';
+                row.insertCell(7).innerText = task.endDate || 'N/A';
+
+                // Only add actions if the task is not completed
+                if (task.status !== 'Completed') {
+                    const actionsCell = row.insertCell(8);
+                    const dropdown = document.createElement('div');
+                    dropdown.classList.add('dropdown');
+                    const dropdownButton = document.createElement('button');
+                    dropdownButton.textContent = 'Action';
+                    dropdownButton.classList.add('button');
+                    const dropdownContent = document.createElement('div');
+                    dropdownContent.classList.add('dropdown-content');
+
+                    const startButton = document.createElement('button');
+                    startButton.textContent = 'Start';
+                    startButton.addEventListener('click', () => {
+                        task.startDate = new Date().toLocaleDateString();
+                        task.status = 'Active';
+                        updateTask(task, index);
+                        updateTable();
+                    });
+
+                    const completeButton = document.createElement('button');
+                    completeButton.textContent = 'Complete';
+                    completeButton.addEventListener('click', () => {
+                        task.endDate = new Date().toLocaleDateString();
+                        task.status = 'Completed';
+                        updateTask(task, index);
+                        removeCompletedTask(index);
+                        updateTable();
+                    });
+
+                    dropdownContent.appendChild(startButton);
+                    dropdownContent.appendChild(completeButton);
+                    dropdown.appendChild(dropdownButton);
+                    dropdown.appendChild(dropdownContent);
+                    actionsCell.appendChild(dropdown);
+                }
+            });
+        }
+
+        // Show all tasks when "All Tasks" button is clicked
+        viewAllBtn.addEventListener('click', () => {
+            const activeTasks = tasks.filter(task => task.status !== 'Completed');
+            updateTable(activeTasks);
+        });
+
+        // Show only completed tasks when the "Completed Tasks" button is clicked
+        viewCompletedBtn.addEventListener('click', () => {
+            const selectedProject = filterProjectDropdown.value;
+            const completedTasksFiltered = tasks.filter(task => task.status === 'Completed' && (selectedProject !== 'none' ? task.projectName === selectedProject : true));
+            updateTable(completedTasksFiltered);
+        });
+
+        // Populate project dropdown in the add task form
+        function populateProjectDropdown() {
+            const projectDropdown = document.getElementById('projectName');
+            projectDropdown.innerHTML = projectNames.map(project => 
+                `<option value="${project}">${project}</option>` 
+            ).join('');
+        }
+
+        // Populate the filter dropdown with project names, including "None"
+        function populateFilterDropdown() {
+            filterProjectDropdown.innerHTML = `<option value="none">None</option>` + projectNames.map(project => 
+                `<option value="${project}">${project}</option>` 
+            ).join('');
+        }
+
+        // When the filter is changed, update the table immediately
+        filterProjectDropdown.addEventListener('change', (e) => {
+            const selectedProject = e.target.value;
+            const filteredTasks = selectedProject !== 'none'
+                ? tasks.filter(task => task.projectName === selectedProject)
+                : tasks;
+            updateTable(filteredTasks);
+        });
+
+        // Initial load of tasks from Firebase and populate filter dropdown
+        loadTasks();
+        populateFilterDropdown();
+    </script>
 </head>
 <body>
 
@@ -203,202 +417,5 @@
     <div id="taskList">
         <!-- Tasks will be displayed here -->
     </div>
-    
-    </body>
-    
-
-  <script>
-    // Get elements from the DOM
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskModal = document.getElementById('taskModal');
-    const closeModal = document.getElementById('closeModal');
-    const taskForm = document.getElementById('taskForm');
-    const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
-    const viewCompletedBtn = document.getElementById('viewCompletedBtn');
-    const viewAllBtn = document.getElementById('viewAllBtn');
-    const filterProjectDropdown = document.getElementById('filterProjectDropdown');
-
-    const projectNames = [
-        "Hazida Limited", "Hazida Motors", "Hazida Foods", "Freight and Passengers", 
-        "Lumumba Showroom Ezone", "Manda Hill Ezone Store", "Cento Ezone Store", 
-        "Cosmopolitan Ezone Store", "Trident Ezone Store", "Kitwe Ezone Store", 
-        "Livingstone Ezone Store", "Mr Mussa", "Mr Ebrahim", "Madam Shirin", 
-        "Mr Ishmil", "Mr Shabbir", "Mr Riaz", "Mr Faiyaz", "Northmeads Flats 1", 
-        "Northmeads Flats 2", "Fields Works"
-    ];
-
-    const employees = [
-        "BRIGHTON MATOLOKOSH", "CAPHAS TEMBO", "CLISHA MAMBILIMA", "DABSON DAKA", 
-        "DANNY MVULA", "JAMES DAKA", "JOSEPH TEMBO", "LUCKSON PHIRI", "MICHEAL LOBELA", 
-        "OBERT SIAME", "DOMINIC SAKALA", "PETER MAWERE", "SAVIOUR PHIRI", 
-        "TEMBEYA SAKALA", "KEVIN SIAME"
-    ];
-
-    // Load tasks from localStorage
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
-
-    // Event listeners for adding tasks and closing the modal
-    addTaskBtn.addEventListener('click', () => {
-        taskModal.style.display = 'block';
-        populateProjectDropdown(); // Populate project dropdown when modal is shown
-    });
-
-    closeModal.addEventListener('click', () => {
-        taskModal.style.display = 'none';
-    });
-
-    taskForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const projectName = document.getElementById('projectName').value;
-        const taskDescription = document.getElementById('taskDescription').value;
-        const location = document.getElementById('location').value;
-        const priority = document.getElementById('priority').value;
-
-        const newTask = {
-            projectName,
-            taskDescription,
-            location,
-            priority,
-            assignedTo: '',  // Initially no resource assigned
-            status: 'Inactive',
-            startDate: '',
-            endDate: ''
-        };
-
-        tasks.push(newTask);
-        saveTasks();
-        updateTable();
-        taskModal.style.display = 'none';
-        taskForm.reset();
-    });
-
-    // Save tasks and completed tasks to localStorage
-    function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-    }
-
-    // Update the task table with active tasks
-    function updateTable(filteredTasks = tasks) {
-        taskTable.innerHTML = ''; // Clear the table
-
-        filteredTasks.forEach((task, index) => {
-            const row = taskTable.insertRow();
-            row.insertCell(0).innerText = task.projectName;
-            row.insertCell(1).innerText = task.taskDescription;
-            row.insertCell(2).innerText = task.location;
-            row.insertCell(3).innerText = task.priority;
-            row.insertCell(4).innerText = task.status;
-
-            // Assigned To column with text input
-            const assignedToCell = row.insertCell(5);
-            const assignedToInput = document.createElement('input');
-            assignedToInput.type = 'text';
-            assignedToInput.value = task.assignedTo || ''; // Set current value if exists
-            assignedToInput.placeholder = 'Type name here...';
-
-            // Lock input for completed tasks
-            if (task.status === 'Completed') {
-                assignedToInput.disabled = true;
-            } else {
-                assignedToInput.addEventListener('input', (event) => {
-                    task.assignedTo = event.target.value;
-                    saveTasks();
-                });
-            }
-            assignedToCell.appendChild(assignedToInput);
-
-            row.insertCell(6).innerText = task.startDate || 'N/A';
-            row.insertCell(7).innerText = task.endDate || 'N/A';
-
-            // Only add actions if the task is not completed
-            if (task.status !== 'Completed') {
-                const actionsCell = row.insertCell(8);
-                const dropdown = document.createElement('div');
-                dropdown.classList.add('dropdown');
-                const dropdownButton = document.createElement('button');
-                dropdownButton.textContent = 'Action';
-                dropdownButton.classList.add('button');
-                const dropdownContent = document.createElement('div');
-                dropdownContent.classList.add('dropdown-content');
-
-                const startButton = document.createElement('button');
-                startButton.textContent = 'Start';
-                startButton.addEventListener('click', () => {
-                    task.startDate = new Date().toLocaleDateString();
-                    task.status = 'Active';
-                    saveTasks();
-                    updateTable();
-                });
-
-                const completeButton = document.createElement('button');
-                completeButton.textContent = 'Complete';
-                completeButton.addEventListener('click', () => {
-                    task.endDate = new Date().toLocaleDateString();
-                    task.status = 'Completed';
-                    completedTasks.push(task); // Move task to completed tasks
-                    tasks = tasks.filter(t => t !== task); // Remove from active tasks
-                    saveTasks();
-                    updateTable();
-                });
-
-                dropdownContent.appendChild(startButton);
-                dropdownContent.appendChild(completeButton);
-                dropdown.appendChild(dropdownButton);
-                dropdown.appendChild(dropdownContent);
-                actionsCell.appendChild(dropdown);
-            }
-        });
-    }
-
-    // Show all tasks when "All Tasks" button is clicked
-    viewAllBtn.addEventListener('click', () => {
-        const activeTasks = tasks.filter(task => task.status !== 'Completed');
-        updateTable(activeTasks);
-    });
-
-    // Show only completed tasks when the "Completed Tasks" button is clicked
-    viewCompletedBtn.addEventListener('click', () => {
-        const selectedProject = filterProjectDropdown.value;
-        const completedTasksFiltered = completedTasks.filter(task => task.status === 'Completed' && (selectedProject !== 'none' ? task.projectName === selectedProject : true));
-        updateTable(completedTasksFiltered);
-    });
-
-    // Populate project dropdown in the add task form
-    function populateProjectDropdown() {
-        const projectDropdown = document.getElementById('projectName');
-        projectDropdown.innerHTML = projectNames.map(project => 
-            `<option value="${project}">${project}</option>` 
-        ).join('');
-    }
-
-    // Populate the filter dropdown with project names, including "None"
-    function populateFilterDropdown() {
-        filterProjectDropdown.innerHTML = `<option value="none">None</option>` + projectNames.map(project => 
-            `<option value="${project}">${project}</option>` 
-        ).join('');
-    }
-
-    // When the filter is changed, update the table immediately
-    filterProjectDropdown.addEventListener('change', (e) => {
-        const selectedProject = e.target.value;
-        const filteredTasks = selectedProject !== 'none'
-            ? tasks.filter(task => task.projectName === selectedProject)
-            : tasks;
-        updateTable(filteredTasks);
-    });
-
-    // Initial update of the table with all tasks and populate filter dropdown
-    updateTable();
-    populateFilterDropdown();
-</script>
-
-  </body>
-  
-
-
-
 </body>
 </html>
