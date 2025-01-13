@@ -240,7 +240,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -290,8 +290,27 @@
         // Save inventory data to Firebase
         function saveInventory(item) {
             const inventoryRef = ref(db, "inventory/");
-            const newItemRef = push(inventoryRef);
-            set(newItemRef, item);
+            onValue(inventoryRef, (snapshot) => {
+                const data = snapshot.val();
+                let itemKey = null;
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        if (data[key].binId === item.binId && data[key].name === item.name) {
+                            itemKey = key;
+                        }
+                    });
+                }
+
+                if (itemKey) {
+                    const itemRef = ref(db, `inventory/${itemKey}`);
+                    update(itemRef, {
+                        stockAvailable: data[itemKey].stockAvailable + item.stockAvailable
+                    });
+                } else {
+                    const newItemRef = push(inventoryRef);
+                    set(newItemRef, item);
+                }
+            });
         }
 
         // Toggle visibility of the form when the button is clicked
