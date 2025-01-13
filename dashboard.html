@@ -260,62 +260,34 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/fontawesome.min.js"></script>
+    
     <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDxQ9ai-C2RlJy27p_kdHkXeqz1Cpbyh4",
-            authDomain: "project-app-58ff6.firebaseapp.com",
-            projectId: "project-app-58ff6",
-            storageBucket: "project-app-58ff6.appspot.com",
-            messagingSenderId: "586923989952",
-            appId: "1:586923989952:web:72b300dbc00d830e2e462"
-        };
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // Fetch data from employee.html and populate the tables
+        function fetchEmployeeData() {
+            fetch('employee.html')
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+                    const employees = [...doc.querySelectorAll('table tbody tr')].map(row => {
+                        const cells = row.querySelectorAll('td');
+                        return {
+                            name: cells[0].innerText,
+                            position: cells[1].innerText,
+                            status: cells[2].innerText
+                        };
+                    });
 
-        // Ensure only authenticated users can access the dashboard
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Notification handling
-        const notifications = [
-            { message: 'Task assignment updated', type: 'info' },
-            { message: 'New staff added', type: 'warning' }
-        ];
-
-        function showNotifications() {
-            const notificationsContainer = document.getElementById('notificationsContainer');
-            const notificationBadge = document.getElementById('notificationBadge');
-            const notificationsList = document.getElementById('notificationsList');
-            notificationsList.innerHTML = '';
-
-            notifications.forEach(notification => {
-                const li = document.createElement('li');
-                li.innerText = notification.message;
-                notificationsList.appendChild(li);
-            });
-
-            if (notifications.length > 0) {
-                notificationBadge.style.display = 'block';
-            } else {
-                notificationBadge.style.display = 'none';
-            }
+                    populateUnassignedStaff(employees);
+                    populateActiveTasks(employees);
+                })
+                .catch(error => console.error('Error fetching employee data:', error));
         }
 
-        document.getElementById('notificationIcon').addEventListener('click', () => {
-            const notificationsContainer = document.getElementById('notificationsContainer');
-            notificationsContainer.style.display = notificationsContainer.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // Fetch Unassigned Staff from localStorage
-        function fetchUnassignedStaff() {
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
+        // Populate the Unassigned Staff table
+        function populateUnassignedStaff(employees) {
             const unassignedEmployees = employees.filter(employee => employee.status === 'Unassigned');
             const tableBody = document.getElementById('unassignedStaffTable');
             tableBody.innerHTML = ''; // Clear the table before populating
@@ -331,10 +303,9 @@
             });
         }
 
-        // Fetch Active Tasks from localStorage
-        function fetchActiveTasks() {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const activeTasks = tasks.filter(task => task.status === 'Active');
+        // Populate the Active Tasks table
+        function populateActiveTasks(employees) {
+            const activeTasks = employees.filter(employee => employee.status === 'Active');
             const tableBody = document.getElementById('activeTasksTable');
             tableBody.innerHTML = ''; // Clear the table before populating
 
@@ -354,9 +325,7 @@
 
         // Initialize the data when the page loads
         window.onload = () => {
-            fetchUnassignedStaff();
-            fetchActiveTasks();
-            showNotifications();
+            fetchEmployeeData();
         };
     </script>
 </body>
