@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Task Manager</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,32 +116,50 @@
     </table>
 
     <script>
-        // Load stored employees from localStorage
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxQ9ai-C2RlJy27p_kdHkKXeqz1Cpbyh4",
+            authDomain: "project-app-58ff6.firebaseapp.com",
+            databaseURL: "https://project-app-58ff6-default-rtdb.firebaseio.com",
+            projectId: "project-app-58ff6",
+            storageBucket: "project-app-58ff6.appspot.com",
+            messagingSenderId: "586923989952",
+            appId: "1:586923989952:web:72b300dbc00d830e2e4625",
+            measurementId: "G-HV80KTBWSR"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Load stored employees from Firebase Realtime Database
         function loadEmployees() {
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
-            const tableBody = document.getElementById('employeeTable').getElementsByTagName('tbody')[0];
-            tableBody.innerHTML = ''; // Clear existing rows
+            const employeeRef = db.ref('employees');
+            employeeRef.once('value', (snapshot) => {
+                const employees = snapshot.val() || [];
+                const tableBody = document.getElementById('employeeTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = ''; // Clear existing rows
 
-            employees.forEach(employee => {
-                const newRow = tableBody.insertRow();
-                newRow.insertCell(0).innerText = employee.staffId;
-                newRow.insertCell(1).innerText = employee.name;
-                newRow.insertCell(2).innerText = employee.surname;
-                newRow.insertCell(3).innerText = employee.location;
-                newRow.insertCell(4).innerText = employee.position;
-                newRow.insertCell(5).innerText = employee.status || 'Unassigned'; // Default to "Unassigned" if not set
-                
-                // Add Assign/Unassign Task button
-                const toggleButtonCell = newRow.insertCell(6);
-                const toggleButton = document.createElement('button');
-                toggleButton.innerText = employee.status === 'Assigned' ? 'Unassign Task' : 'Assign Task';
-                toggleButton.onclick = function() {
-                    toggleTaskStatus(employee.staffId);
-                };
-                toggleButtonCell.appendChild(toggleButton);
+                for (const key in employees) {
+                    const employee = employees[key];
+                    const newRow = tableBody.insertRow();
+                    newRow.insertCell(0).innerText = employee.staffId;
+                    newRow.insertCell(1).innerText = employee.name;
+                    newRow.insertCell(2).innerText = employee.surname;
+                    newRow.insertCell(3).innerText = employee.location;
+                    newRow.insertCell(4).innerText = employee.position;
+                    newRow.insertCell(5).innerText = employee.status || 'Unassigned'; // Default to "Unassigned" if not set
+
+                    // Add Assign/Unassign Task button
+                    const toggleButtonCell = newRow.insertCell(6);
+                    const toggleButton = document.createElement('button');
+                    toggleButton.innerText = employee.status === 'Assigned' ? 'Unassign Task' : 'Assign Task';
+                    toggleButton.onclick = function() {
+                        toggleTaskStatus(employee.staffId);
+                    };
+                    toggleButtonCell.appendChild(toggleButton);
+                }
+                console.log("Loaded employees from Firebase:", employees); // Debugging log
             });
-
-            console.log("Loaded employees from localStorage:", employees); // Debugging log
         }
 
         // Toggle the "Add Employee" form
@@ -144,7 +168,7 @@
             formContainer.style.display = (formContainer.style.display === 'none' || formContainer.style.display === '') ? 'block' : 'none';
         });
 
-        // Add new employee
+        // Add new employee to Firebase
         document.getElementById('employeeForm').addEventListener('submit', function (event) {
             event.preventDefault();
             const staffId = document.getElementById('staffId').value;
@@ -162,15 +186,9 @@
                 status: 'Unassigned'
             };
 
-            // Get existing employees from localStorage
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
-            employees.push(newEmployee);
-
-            // Save the updated employees to localStorage
-            localStorage.setItem('employees', JSON.stringify(employees));
-
-            // Reload the employee table
-            loadEmployees();
+            const employeeRef = db.ref('employees');
+            const newEmployeeRef = employeeRef.push();
+            newEmployeeRef.set(newEmployee);
 
             // Reset form and hide it
             document.getElementById('employeeForm').reset();
@@ -179,21 +197,16 @@
 
         // Toggle task assignment status
         function toggleTaskStatus(staffId) {
-            const employees = JSON.parse(localStorage.getItem('employees')) || [];
-            const employee = employees.find(emp => emp.staffId === staffId);
+            const employeeRef = db.ref('employees').orderByChild('staffId').equalTo(staffId);
+            employeeRef.once('value', (snapshot) => {
+                const employees = snapshot.val();
+                for (const key in employees) {
+                    const employee = employees[key];
+                    const updatedStatus = employee.status === 'Assigned' ? 'Unassigned' : 'Assigned';
 
-            if (employee) {
-                // Toggle the status between Assigned and Unassigned
-                employee.status = employee.status === 'Assigned' ? 'Unassigned' : 'Assigned';
-
-                // Save updated employees list to localStorage
-                localStorage.setItem('employees', JSON.stringify(employees));
-
-                // Reload employee table to reflect updated status
-                loadEmployees();
-            } else {
-                alert('Employee not found.');
-            }
+                    employeeRef.child(key).update({ status: updatedStatus });
+                }
+            });
         }
 
         // Search table
@@ -215,7 +228,7 @@
             }
         }
 
-        // Initialize the page by loading existing employees
+        // Initialize the page by loading existing employees from Firebase
         loadEmployees();
     </script>
 </body>
