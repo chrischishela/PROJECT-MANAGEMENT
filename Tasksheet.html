@@ -39,9 +39,9 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px auto;
-            max-height: 400px; /* Set max height to allow scrolling */
-            overflow-y: auto; /* Allow vertical scrolling */
-            display: block; /* Make the table block to handle overflow */
+            max-height: 400px;
+            overflow-y: auto;
+            display: block;
         }
         th, td {
             padding: 10px;
@@ -51,9 +51,9 @@
         th {
             background-color: #4CAF50;
             color: white;
-            position: sticky; /* Make the header sticky */
-            top: 0; /* Keep the header at the top while scrolling */
-            z-index: 1; /* Ensure header is above content */
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
         th {
             width: 300px;
@@ -138,7 +138,6 @@
 <div class="button-container">
     <select id="filterProjectDropdown">
         <option value="none">None</option>
-        <!-- Project options will be populated dynamically -->
     </select>
     <button id="viewAllBtn">All Tasks</button>
     <button id="addTaskBtn">Add Task</button>
@@ -160,7 +159,6 @@
         </tr>
     </thead>
     <tbody>
-        <!-- Task rows will be added dynamically here -->
     </tbody>
 </table>
 
@@ -210,25 +208,20 @@
         "Northmeads Flats 2", "Fields Works"
     ];
 
-    const employees = [
-        "BRIGHTON MATOLOKOSH", "CAPHAS TEMBO", "CLISHA MAMBILIMA", "DABSON DAKA", 
-        "DANNY MVULA", "JAMES DAKA", "JOSEPH TEMBO", "LUCKSON PHIRI", "MICHEAL LOBELA", 
-        "OBERT SIAME", "DOMINIC SAKALA", "PETER MAWERE", "SAVIOUR PHIRI", 
-        "TEMBEYA SAKALA", "KEVIN SIAME"
-    ];
-
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let resources = JSON.parse(localStorage.getItem('resources')) || [];
 
+    // Open modal for adding tasks
     addTaskBtn.addEventListener('click', () => {
         taskModal.style.display = 'block';
-        populateProjectDropdown(); // Populating project dropdown when modal is shown
+        populateProjectDropdown();
     });
 
+    // Close modal
     closeModal.addEventListener('click', () => {
         taskModal.style.display = 'none';
     });
 
+    // Submit task form
     taskForm.addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -242,7 +235,7 @@
             taskDescription,
             location,
             priority,
-            assignedTo: '',  // Initially no resource assigned
+            assignedTo: '',
             status: 'Inactive',
             startDate: '',
             endDate: ''
@@ -269,11 +262,10 @@
             row.insertCell(3).innerText = task.priority;
             row.insertCell(4).innerText = task.status;
 
-            // Assigned To column with text input
             const assignedToCell = row.insertCell(5);
             const assignedToInput = document.createElement('input');
             assignedToInput.type = 'text';
-            assignedToInput.value = task.assignedTo || ''; // Set the current value if exists
+            assignedToInput.value = task.assignedTo || '';
             assignedToInput.placeholder = 'Type name here...';
             assignedToInput.addEventListener('input', (event) => {
                 task.assignedTo = event.target.value;
@@ -284,17 +276,8 @@
             row.insertCell(6).innerText = task.startDate || 'N/A';
             row.insertCell(7).innerText = task.endDate || 'N/A';
 
-            // Only add actions if the task is not completed
             if (task.status !== 'Completed') {
                 const actionsCell = row.insertCell(8);
-                const dropdown = document.createElement('div');
-                dropdown.classList.add('dropdown');
-                const dropdownButton = document.createElement('button');
-                dropdownButton.textContent = 'Action';
-                dropdownButton.classList.add('button');
-                const dropdownContent = document.createElement('div');
-                dropdownContent.classList.add('dropdown-content');
-
                 const startButton = document.createElement('button');
                 startButton.textContent = 'Start';
                 startButton.addEventListener('click', () => {
@@ -313,29 +296,24 @@
                     updateTable();
                 });
 
-                dropdownContent.appendChild(startButton);
-                dropdownContent.appendChild(completeButton);
-                dropdown.appendChild(dropdownButton);
-                dropdown.appendChild(dropdownContent);
-                actionsCell.appendChild(dropdown);
+                actionsCell.appendChild(startButton);
+                actionsCell.appendChild(completeButton);
             }
         });
     }
 
-    // Show all tasks when "All Tasks" button is clicked
+    // View all tasks
     viewAllBtn.addEventListener('click', () => {
-        const activeTasks = tasks.filter(task => task.status !== 'Completed');
-        updateTable(activeTasks);
+        updateTable();
     });
 
-    // Show only completed tasks when the "Completed Tasks" button is clicked
+    // View only completed tasks
     viewCompletedBtn.addEventListener('click', () => {
-        const selectedProject = filterProjectDropdown.value;
-        const completedTasks = tasks.filter(task => task.status === 'Completed' && (selectedProject !== 'none' ? task.projectName === selectedProject : true));
+        const completedTasks = tasks.filter(task => task.status === 'Completed');
         updateTable(completedTasks);
     });
 
-    // Populate project dropdown
+    // Populate project name dropdown
     function populateProjectDropdown() {
         const projectDropdown = document.getElementById('projectName');
         projectDropdown.innerHTML = projectNames.map(project => 
@@ -343,14 +321,14 @@
         ).join('');
     }
 
-    // Populate the filter dropdown with project names, including "None"
+    // Populate project filter dropdown
     function populateFilterDropdown() {
         filterProjectDropdown.innerHTML = `<option value="none">None</option>` + projectNames.map(project => 
             `<option value="${project}">${project}</option>`
         ).join('');
     }
 
-    // When the filter is changed, update the table immediately
+    // Project filter
     filterProjectDropdown.addEventListener('change', (e) => {
         const selectedProject = e.target.value;
         const filteredTasks = selectedProject !== 'none'
@@ -359,7 +337,7 @@
         updateTable(filteredTasks);
     });
 
-    // Initial update of the table with all tasks and populate filter dropdown
+    // Initialize the table and filter dropdown
     updateTable();
     populateFilterDropdown();
 </script>
