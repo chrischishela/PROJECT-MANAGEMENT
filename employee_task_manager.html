@@ -8,7 +8,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js"></script>
 
     <style>
         body {
@@ -135,7 +134,7 @@
         function loadEmployees() {
             const employeeRef = db.ref('employees');
             employeeRef.once('value', (snapshot) => {
-                const employees = snapshot.val() || [];
+                const employees = snapshot.val() || {};
                 const tableBody = document.getElementById('employeeTable').getElementsByTagName('tbody')[0];
                 tableBody.innerHTML = ''; // Clear existing rows
 
@@ -193,6 +192,9 @@
             // Reset form and hide it
             document.getElementById('employeeForm').reset();
             document.getElementById('formContainer').style.display = 'none';
+
+            // Reload the employee table to reflect the new employee
+            loadEmployees();
         });
 
         // Toggle task assignment status
