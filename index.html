@@ -91,13 +91,27 @@
     .penta {
       color: white;
     }
+
+    #login-attempts-container {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border-radius: 5px;
+      width: 300px;
+      text-align: left;
+    }
+
+    #login-attempts-container div {
+      margin-bottom: 10px;
+    }
   </style>
 
   <!-- Firebase SDK -->
   <script type="module">
     // Initialize Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
 
     const firebaseConfig = {
@@ -160,6 +174,34 @@
       }
     }
 
+    // Real-time listener for loginAttempts
+    const loginAttemptsRef = ref(database, 'loginAttempts');
+    onValue(loginAttemptsRef, (snapshot) => {
+      const loginAttempts = snapshot.val(); // Get the current data
+
+      if (loginAttempts) {
+        console.log("Login Attempts data: ", loginAttempts);
+        // Display login attempts in real-time
+        displayLoginAttempts(loginAttempts);
+      }
+    });
+
+    // Function to display login attempts
+    function displayLoginAttempts(loginAttempts) {
+      const attemptsContainer = document.getElementById("login-attempts-container");
+
+      // Clear previous data
+      attemptsContainer.innerHTML = "";
+
+      // Loop through each login attempt and display it
+      Object.keys(loginAttempts).forEach(key => {
+        const attempt = loginAttempts[key];
+        const attemptElement = document.createElement("div");
+        attemptElement.innerHTML = `<strong>User:</strong> ${attempt.username} <strong>Time:</strong> ${attempt.timestamp}`;
+        attemptsContainer.appendChild(attemptElement);
+      });
+    }
+
     // Export functions to global scope
     window.login = login;
     window.togglePasswordVisibility = togglePasswordVisibility;
@@ -180,5 +222,10 @@
     <button onclick="login()">Login</button>
   </div>
 
+  <div id="login-attempts-container">
+    <!-- Login attempts data will be displayed here -->
+  </div>
+
 </body>
 </html>
+
