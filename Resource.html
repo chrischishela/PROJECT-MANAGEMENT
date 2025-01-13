@@ -180,29 +180,25 @@
                 <option value="">Select a Project</option>
                 <option value="Hazida Limited">Hazida Limited</option>
                 <option value="Hazida Motors">Hazida Motors</option>
-                <option value="Hazida Limited">Hazida Limited</option>
-            <option value="Hazida Motors">Hazida Motors</option>
-            <option value="Hazida Foods">Hazida Foods</option>
-            <option value="Freight and Passengers">Freight and Passengers</option>
-            <option value="Lumumba Showroom Ezone">Lumumba Showroom Ezone</option>
-            <option value="Manda Hill Ezone Store">Manda Hill Ezone Store</option>
-            <option value="Cento Ezone Store">Cento Ezone Store</option>
-            <option value="Cosmopolitan Ezone Store">Cosmopolitan Ezone Store</option>
-            <option value="Trident Ezone Store">Trident Ezone Store</option>
-            <option value="Kitwe Ezone Store">Kitwe Ezone Store</option>
-            <option value="Livingstone Ezone Store">Livingstone Ezone Store</option>
-            <option value="Mr Mussa">Mr Mussa</option>
-            <option value="Mr Ebrahim">Mr Ebrahim</option>
-            <option value="Madam Shirin">Madam Shirin</option>
-            <option value="Mr Ishmil">Mr Ishmil</option>
-            <option value="Mr Shabbir">Mr Shabbir</option>
-            <option value="Mr Riaz">Mr Riaz</option>
-            <option value="Mr Faiyaz">Mr Faiyaz</option>
-            <option value="Northmeads Flats 1">Northmeads Flats 1</option>
-            <option value="Northmeads Flats 2">Northmeads Flats 2</option>
-            <option value="Fields Works">Fields Works</option>
-        </select>
-                <!-- Add more projects -->
+                <option value="Hazida Foods">Hazida Foods</option>
+                <option value="Freight and Passengers">Freight and Passengers</option>
+                <option value="Lumumba Showroom Ezone">Lumumba Showroom Ezone</option>
+                <option value="Manda Hill Ezone Store">Manda Hill Ezone Store</option>
+                <option value="Cento Ezone Store">Cento Ezone Store</option>
+                <option value="Cosmopolitan Ezone Store">Cosmopolitan Ezone Store</option>
+                <option value="Trident Ezone Store">Trident Ezone Store</option>
+                <option value="Kitwe Ezone Store">Kitwe Ezone Store</option>
+                <option value="Livingstone Ezone Store">Livingstone Ezone Store</option>
+                <option value="Mr Mussa">Mr Mussa</option>
+                <option value="Mr Ebrahim">Mr Ebrahim</option>
+                <option value="Madam Shirin">Madam Shirin</option>
+                <option value="Mr Ishmil">Mr Ishmil</option>
+                <option value="Mr Shabbir">Mr Shabbir</option>
+                <option value="Mr Riaz">Mr Riaz</option>
+                <option value="Mr Faiyaz">Mr Faiyaz</option>
+                <option value="Northmeads Flats 1">Northmeads Flats 1</option>
+                <option value="Northmeads Flats 2">Northmeads Flats 2</option>
+                <option value="Fields Works">Fields Works</option>
             </select>
 
             <label for="employee">Employee:</label>
@@ -223,8 +219,6 @@
                 <option value="SAVIOUR PHIRI">SAVIOUR PHIRI</option>
                 <option value="TEMBEYA SAKALA">TEMBEYA SAKALA</option>
                 <option value="KELVIN SIAME">KELVIN SIAME</option>
-            </select><br><br>
-                <!-- Add more employees -->
             </select>
 
             <label for="taskDescription">Task Description:</label>
@@ -243,161 +237,168 @@
         </form>
         <button id="closeAssignFormBtn">Close</button>
     </div>
-</body>
-</html>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
-<script>
-    // Select elements
-    const inventoryForm = document.getElementById('inventoryForm');
-    const inventoryTable = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
-    const toggleFormBtn = document.getElementById('toggleFormBtn');
-    const assignInventoryBtn = document.getElementById('assignInventoryBtn');
-    const assignInventoryForm = document.getElementById('assignInventoryForm');
-    const closeAssignFormBtn = document.getElementById('closeAssignFormBtn');
-    const itemNameSelect = document.getElementById('itemName');
-    const viewResourceHistoryBtn = document.getElementById('viewResourceHistoryBtn');
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
 
-    // Save inventory data to localStorage
-    function saveInventory(inventoryData) {
-        localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
-    }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    // Load inventory data from localStorage
-    function loadInventory() {
-        const inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
-        inventoryTable.innerHTML = ''; // Clear existing table rows
-        inventoryData.forEach(item => {
-            const newRow = inventoryTable.insertRow();
-            newRow.insertCell(0).textContent = item.binId;
-            newRow.insertCell(1).textContent = item.name;
-            newRow.insertCell(2).textContent = item.supplier;
-            newRow.insertCell(3).textContent = item.stockAvailable;
-            newRow.insertCell(4).textContent = item.requested;
-        });
-    }
+        // Select elements
+        const inventoryForm = document.getElementById('inventoryForm');
+        const inventoryTable = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
+        const toggleFormBtn = document.getElementById('toggleFormBtn');
+        const assignInventoryBtn = document.getElementById('assignInventoryBtn');
+        const assignInventoryForm = document.getElementById('assignInventoryForm');
+        const closeAssignFormBtn = document.getElementById('closeAssignFormBtn');
+        const itemNameSelect = document.getElementById('itemName');
+        const viewResourceHistoryBtn = document.getElementById('viewResourceHistoryBtn');
 
-    // Toggle visibility of the form when the button is clicked
-    toggleFormBtn.addEventListener('click', function() {
-        if (inventoryForm.style.display === "none" || inventoryForm.style.display === "") {
-            inventoryForm.style.display = "block";
-            toggleFormBtn.textContent = "Hide Form";
-        } else {
-            inventoryForm.style.display = "none";
-            toggleFormBtn.textContent = "Add New Item";
+        // Load inventory data from Firebase
+        function loadInventory() {
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                inventoryTable.innerHTML = ''; // Clear existing table rows
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
+                        const newRow = inventoryTable.insertRow();
+                        newRow.insertCell(0).textContent = item.binId;
+                        newRow.insertCell(1).textContent = item.name;
+                        newRow.insertCell(2).textContent = item.supplier;
+                        newRow.insertCell(3).textContent = item.stockAvailable;
+                        newRow.insertCell(4).textContent = item.requested;
+                    });
+                }
+            });
         }
-    });
 
-    // Handle the form submission for adding inventory
-    inventoryForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent form from refreshing the page
+        // Save inventory data to Firebase
+        function saveInventory(item) {
+            const inventoryRef = ref(db, "inventory/");
+            const newItemRef = push(inventoryRef);
+            set(newItemRef, item);
+        }
 
-        const binId = document.getElementById('binId').value;
-        const name = document.getElementById('name').value;
-        const supplier = document.getElementById('supplier').value;
-        const stockAvailable = parseInt(document.getElementById('stockAvailable').value);
+        // Toggle visibility of the form when the button is clicked
+        toggleFormBtn.addEventListener('click', function() {
+            if (inventoryForm.style.display === "none" || inventoryForm.style.display === "") {
+                inventoryForm.style.display = "block";
+                toggleFormBtn.textContent = "Hide Form";
+            } else {
+                inventoryForm.style.display = "none";
+                toggleFormBtn.textContent = "Add New Item";
+            }
+        });
 
-        const inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
+        // Handle the form submission for adding inventory
+        inventoryForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
 
-        // Check if the item already exists in the inventory
-        const existingItemIndex = inventoryData.findIndex(item => item.binId === binId);
+            const binId = document.getElementById('binId').value;
+            const name = document.getElementById('name').value;
+            const supplier = document.getElementById('supplier').value;
+            const stockAvailable = parseInt(document.getElementById('stockAvailable').value);
 
-        if (existingItemIndex !== -1) {
-            // Update the existing item stock
-            inventoryData[existingItemIndex].stockAvailable += stockAvailable;
-        } else {
-            // Add new item to inventory
-            inventoryData.push({
+            const item = {
                 binId,
                 name,
                 supplier,
                 stockAvailable,
                 requested: 0
+            };
+
+            // Save item to Firebase
+            saveInventory(item);
+
+            // Clear the form after submission
+            inventoryForm.reset();
+            inventoryForm.style.display = "none";  // Hide the form after submission
+            toggleFormBtn.textContent = "Add New Item";  // Change button text back to "Add New Item"
+        });
+
+        // Open Assign Inventory form when the button is clicked
+        assignInventoryBtn.addEventListener('click', function() {
+            // Populate the item names in the assign inventory form
+            itemNameSelect.innerHTML = '<option value="">Select Item</option>'; // Clear existing options
+            for (let i = 0; i < inventoryTable.rows.length; i++) {
+                const row = inventoryTable.rows[i];
+                const itemName = row.cells[1].textContent;
+                const option = document.createElement('option');
+                option.value = itemName;
+                option.textContent = itemName;
+                itemNameSelect.appendChild(option);
+            }
+
+            assignInventoryForm.style.display = 'block';
+        });
+
+        // Close the Assign Inventory form
+        closeAssignFormBtn.addEventListener('click', function() {
+            assignInventoryForm.style.display = 'none';
+        });
+
+        // Handle the form submission for assigning inventory
+        document.getElementById('assignInventoryDetailsForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const projectName = document.getElementById('projectName').value;
+            const employee = document.getElementById('employee').value;
+            const taskDescription = document.getElementById('taskDescription').value;
+            const itemName = document.getElementById('itemName').value;
+            const qty = parseInt(document.getElementById('qty').value);
+
+            // Find the item in the inventory table and update the 'Requested' column
+            let itemKey = null;
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        if (data[key].name === itemName) {
+                            itemKey = key;
+                        }
+                    });
+                }
+
+                if (itemKey) {
+                    const itemRef = ref(db, `inventory/${itemKey}`);
+                    update(itemRef, {
+                        stockAvailable: data[itemKey].stockAvailable - qty,
+                        requested: data[itemKey].requested + qty
+                    });
+                }
             });
-        }
 
-        // Save updated inventory to localStorage
-        saveInventory(inventoryData);
+            alert(`Assigned Inventory: \nProject: ${projectName}\nEmployee: ${employee}\nTask: ${taskDescription}\nItem: ${itemName}\nQuantity: ${qty}`);
+            
+            // Reset form after submission
+            document.getElementById('assignInventoryDetailsForm').reset();
+            assignInventoryForm.style.display = 'none';
+        });
 
-        // Clear the form after submission
-        inventoryForm.reset();
-        inventoryForm.style.display = "none";  // Hide the form after submission
-        toggleFormBtn.textContent = "Add New Item";  // Change button text back to "Add New Item"
+        // Load inventory data when the page loads
+        window.onload = loadInventory;
 
-        // Reload the inventory
-        loadInventory();
-    });
-
-    // Open Assign Inventory form when the button is clicked
-    assignInventoryBtn.addEventListener('click', function() {
-        // Populate the item names in the assign inventory form
-        itemNameSelect.innerHTML = '<option value="">Select Item</option>'; // Clear existing options
-        for (let i = 0; i < inventoryTable.rows.length; i++) {
-            const row = inventoryTable.rows[i];
-            const itemName = row.cells[1].textContent;
-            const option = document.createElement('option');
-            option.value = itemName;
-            option.textContent = itemName;
-            itemNameSelect.appendChild(option);
-        }
-
-        assignInventoryForm.style.display = 'block';
-    });
-
-    // Close the Assign Inventory form
-    closeAssignFormBtn.addEventListener('click', function() {
-        assignInventoryForm.style.display = 'none';
-    });
-
-    // Handle the form submission for assigning inventory
-    document.getElementById('assignInventoryDetailsForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent form from refreshing the page
-
-        const projectName = document.getElementById('projectName').value;
-        const employee = document.getElementById('employee').value;
-        const taskDescription = document.getElementById('taskDescription').value;
-        const itemName = document.getElementById('itemName').value;
-        const qty = parseInt(document.getElementById('qty').value);
-
-        // Find the item in the inventory table and update the 'Requested' column
-        let itemRow = null;
-        for (let i = 0; i < inventoryTable.rows.length; i++) {
-            const row = inventoryTable.rows[i];
-            if (row.cells[1].textContent === itemName) {
-                itemRow = row;
-                break;
-            }
-        }
-
-        if (itemRow) {
-            const currentStock = parseInt(itemRow.cells[3].textContent);
-            if (currentStock >= qty) {
-                itemRow.cells[3].textContent = currentStock - qty; // Deduct from stock
-                const currentRequested = parseInt(itemRow.cells[4].textContent);
-                itemRow.cells[4].textContent = currentRequested + qty; // Update the requested quantity
-            } else {
-                alert("Not enough stock available!");
-                return;
-            }
-        }
-
-        alert(`Assigned Inventory: \nProject: ${projectName}\nEmployee: ${employee}\nTask: ${taskDescription}\nItem: ${itemName}\nQuantity: ${qty}`);
-        
-        // Reset form after submission
-        document.getElementById('assignInventoryDetailsForm').reset();
-        assignInventoryForm.style.display = 'none';
-    });
-
-    // Load inventory data when the page loads
-    window.onload = loadInventory;
-
-    // View Resource History button click handler
-    viewResourceHistoryBtn.addEventListener('click', function() {
-        // Add functionality to view the resource history (you can implement this as needed)
-        alert('View Resource History functionality not implemented yet.');
-    });
-
-</script>
-
+        // View Resource History button click handler
+        viewResourceHistoryBtn.addEventListener('click', function() {
+            // Add functionality to view the resource history (you can implement this as needed)
+            alert('View Resource History functionality not implemented yet.');
+        });
+    </script>
 </body>
 </html>
