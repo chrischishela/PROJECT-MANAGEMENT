@@ -127,7 +127,6 @@
             }
         }
     </style>
-    <!-- Add Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
@@ -148,96 +147,116 @@
         const db = getDatabase(app);
 
         // Get elements from the DOM
-        const formContainer = document.getElementById('formContainer');
-        const minutesForm = document.getElementById('minutesForm');
-        const minutesTableBody = document.getElementById('minutesTableBody');
+        document.addEventListener('DOMContentLoaded', () => {
+            const formContainer = document.getElementById('formContainer');
+            const minutesForm = document.getElementById('minutesForm');
+            const minutesTableBody = document.getElementById('minutesTableBody');
 
-        // Load minutes from Firebase
-        function loadMinutes() {
-            const minutesRef = ref(db, 'minutes/');
-            onValue(minutesRef, (snapshot) => {
-                const data = snapshot.val();
-                const minutes = data ? Object.entries(data) : [];
-                updateTable(minutes);
-            });
-        }
-
-        // Save minutes to Firebase
-        function saveMinutes(minute) {
-            const minutesRef = ref(db, 'minutes/');
-            const newMinuteRef = push(minutesRef);
-            set(newMinuteRef, minute).then(() => {
-                console.log("Minute saved to Firebase:", minute);
-            }).catch((error) => {
-                console.error("Error saving minute to Firebase:", error);
-            });
-        }
-
-        // Remove minutes from Firebase
-        function deleteMinutes(minuteId) {
-            const minuteRef = ref(db, `minutes/${minuteId}`);
-            remove(minuteRef).then(() => {
-                console.log("Minute removed from Firebase:", minuteId);
-            }).catch((error) => {
-                console.error("Error removing minute from Firebase:", error);
-            });
-        }
-
-        // Toggle the form visibility
-        function toggleForm() {
-            formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // Handle form submission
-        function addMinutes(event) {
-            event.preventDefault();
-
-            const meetingTopic = document.getElementById('meetingTopic').value;
-            const meetingDate = document.getElementById('meetingDate').value;
-            const notes = document.getElementById('notes').value;
-
-            if (meetingTopic && meetingDate && notes) {
-                const minute = {
-                    topic: meetingTopic,
-                    date: meetingDate,
-                    notes: notes
-                };
-
-                saveMinutes(minute);
-                minutesForm.reset();
-                formContainer.style.display = 'none';
-            } else {
-                alert('Please fill out all fields.');
+            // Load minutes from Firebase
+            function loadMinutes() {
+                const minutesRef = ref(db, 'minutes/');
+                onValue(minutesRef, (snapshot) => {
+                    const data = snapshot.val();
+                    const minutes = data ? Object.entries(data) : [];
+                    updateTable(minutes);
+                });
             }
-        }
 
-        // Delete minutes
-        function deleteMinutesRow(minuteId, row) {
-            deleteMinutes(minuteId);
-            row.remove();
-        }
+            // Save minutes to Firebase
+            function saveMinutes(minute) {
+                const minutesRef = ref(db, 'minutes/');
+                const newMinuteRef = push(minutesRef);
+                set(newMinuteRef, minute).then(() => {
+                    console.log("Minute saved to Firebase:", minute);
+                }).catch((error) => {
+                    console.error("Error saving minute to Firebase:", error);
+                });
+            }
 
-        // Update the table with minutes
-        function updateTable(minutes) {
-            minutesTableBody.innerHTML = ''; // Clear the table
+            // Remove minutes from Firebase
+            function deleteMinutes(minuteId) {
+                const minuteRef = ref(db, `minutes/${minuteId}`);
+                remove(minuteRef).then(() => {
+                    console.log("Minute removed from Firebase:", minuteId);
+                }).catch((error) => {
+                    console.error("Error removing minute from Firebase:", error);
+                });
+            }
 
-            minutes.forEach(([minuteId, minute]) => {
-                const row = minutesTableBody.insertRow();
-                row.insertCell(0).innerText = minute.topic;
-                row.insertCell(1).innerText = minute.date;
-                row.insertCell(2).innerText = minute.notes;
+            // Toggle the form visibility
+            function toggleForm() {
+                formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
+            }
 
-                const actionCell = row.insertCell(3);
-                const deleteButton = document.createElement('button');
-                deleteButton.innerText = 'Delete';
-                deleteButton.style.marginLeft = '10px';
-                deleteButton.onclick = () => deleteMinutesRow(minuteId, row);
-                actionCell.appendChild(deleteButton);
-            });
-        }
+            // Handle form submission
+            function addMinutes(event) {
+                event.preventDefault();
 
-        // Initial load of minutes from Firebase
-        loadMinutes();
+                const meetingDate = document.getElementById('meetingDate').value;
+                const notes = document.getElementById('notes').value;
+
+                if (meetingDate && notes) {
+                    const minute = {
+                        date: meetingDate,
+                        notes: notes,
+                        completed: false
+                    };
+
+                    saveMinutes(minute);
+                    minutesForm.reset();
+                    formContainer.style.display = 'none';
+                } else {
+                    alert('Please fill out all fields.');
+                }
+            }
+
+            // Mark minutes as completed
+            function toggleMinutesCompletion(minuteId, row) {
+                const minuteRef = ref(db, `minutes/${minuteId}`);
+                update(minuteRef, { completed: !row.classList.contains('completed') }).then(() => {
+                    row.classList.toggle('completed');
+                }).catch((error) => {
+                    console.error("Error updating minutes completion status:", error);
+                });
+            }
+
+            // Delete minutes
+            function deleteMinutesRow(minuteId, row) {
+                deleteMinutes(minuteId);
+                row.remove();
+            }
+
+            // Update the table with minutes
+            function updateTable(minutes) {
+                minutesTableBody.innerHTML = ''; // Clear the table
+
+                minutes.forEach(([minuteId, minute]) => {
+                    const row = minutesTableBody.insertRow();
+                    row.className = minute.completed ? 'completed' : '';
+                    row.insertCell(0).innerText = minute.date;
+                    row.insertCell(1).innerText = minute.notes;
+
+                    const actionCell = row.insertCell(2);
+                    const completeButton = document.createElement('button');
+                    completeButton.innerText = minute.completed ? 'Undo' : 'Complete';
+                    completeButton.onclick = () => toggleMinutesCompletion(minuteId, row);
+                    actionCell.appendChild(completeButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerText = 'Delete';
+                    deleteButton.style.marginLeft = '10px';
+                    deleteButton.onclick = () => deleteMinutesRow(minuteId, row);
+                    actionCell.appendChild(deleteButton);
+                });
+            }
+
+            // Initial load of minutes from Firebase
+            loadMinutes();
+
+            // Event listeners
+            document.querySelector('.toggle-button').addEventListener('click', toggleForm);
+            minutesForm.addEventListener('submit', addMinutes);
+        });
     </script>
 </head>
 
@@ -245,13 +264,10 @@
     <div class="container">
         <h1>Meeting Minutes</h1>
 
-        <button class="toggle-button" onclick="toggleForm()">Add Meeting Minutes</button>
+        <button class="toggle-button">Add Meeting Minutes</button>
 
         <div class="form-container" id="formContainer">
-            <form id="minutesForm" onsubmit="addMinutes(event)">
-                <label for="meetingTopic">Meeting Topic:</label>
-                <input type="text" id="meetingTopic" placeholder="Enter meeting topic" required>
-
+            <form id="minutesForm">
                 <label for="meetingDate">Date:</label>
                 <input type="date" id="meetingDate" required>
 
@@ -265,7 +281,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>Meeting Topic</th>
                     <th>Date</th>
                     <th>Notes</th>
                     <th>Actions</th>
