@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: auto;
             background: #fff;
             padding: 20px;
@@ -198,32 +198,46 @@
         <button class="view-archive-button" onclick="viewMainTasks()">Back to Main Tasks</button>
     </div>
 
-    <script>
-        // Sample price list array
-        const priceList = [
-            { id: 1, name: 'Welding Rods', price: 2.14 },
-            { id: 2, name: 'Cutting Disk', price: 65.00 },
-            { id: 3, name: 'Grinding Disk', price: 75.00 },
-            { id: 4, name: 'R1 16mm', price: 0.40 },
-            { id: 5, name: 'R1 30mm', price: 0.50 },
-            { id: 6, name: 'R2 30mm', price: 0.50 },
-            { id: 7, name: 'R1 50mm', price: 0.60 }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
-        // Array to store archived tasks
-        const archivedTasks = [];
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
 
-        // Populate the resource name dropdown with price list items
-        const resourceNameSelect = document.getElementById('resourceName');
-        priceList.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.price;
-            option.text = item.name;
-            resourceNameSelect.appendChild(option);
-        });
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Fetch inventory data from Firebase and populate the resourceName dropdown
+        function loadResourceNames() {
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                const resourceNameSelect = document.getElementById('resourceName');
+                resourceNameSelect.innerHTML = '<option value="">Select Resource Name</option>'; // Clear existing options
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
+                        const option = document.createElement('option');
+                        option.value = item.price;
+                        option.text = item.name;
+                        resourceNameSelect.appendChild(option);
+                    });
+                }
+            });
+        }
 
         // Update amount input when a resource name is selected
-        resourceNameSelect.addEventListener('change', function() {
+        document.getElementById('resourceName').addEventListener('change', function() {
             document.getElementById('amount').value = this.value;
         });
 
@@ -260,53 +274,82 @@
             const vat = document.getElementById('vat').value;
             const payee = document.getElementById('payee').value;
             const qty = parseInt(document.getElementById('qty').value);
-            const resourceName = resourceNameSelect.options[resourceNameSelect.selectedIndex].text;
+            const resourceName = document.getElementById('resourceName').options[document.getElementById('resourceName').selectedIndex].text;
             const amount = parseFloat(document.getElementById('amount').value);
             const total = qty * amount;
 
-            const table = document.getElementById('expenseTable');
-            const newRow = table.insertRow();
+            // Fetch inventory data from Firebase
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                const data = snapshot.val();
+                const item = Object.values(data).find(i => i.name === resourceName);
 
-            newRow.insertCell(0).innerText = date;
-            newRow.insertCell(1).innerText = taskId;
-            newRow.insertCell(2).innerText = projectName;
-            newRow.insertCell(3).innerText = resourceName;
-            newRow.insertCell(4).innerText = task;
-            newRow.insertCell(5).innerText = supplier;
-            newRow.insertCell(6).innerText = vat;
-            newRow.insertCell(7).innerText = payee;
-            newRow.insertCell(8).innerText = qty;
-            newRow.insertCell(9).innerText = amount.toFixed(2);
-            newRow.insertCell(10).innerText = total.toFixed(2);
+                if (item && qty <= item.stockAvailable) {
+                    // Update the inventory
+                    const itemRef = ref(db, `inventory/${Object.keys(data).find(key => data[key].name === resourceName)}`);
+                    update(itemRef, {
+                        stockAvailable: item.stockAvailable - qty,
+                        requested: (item.requested || 0) + qty
+                    });
 
-            const archiveButton = document.createElement('button');
-            archiveButton.className = 'archive-button';
-            archiveButton.innerText = 'Archive';
-            archiveButton.onclick = function() {
-                archiveTasksById(taskId);
-            };
-            const actionCell = newRow.insertCell(11);
-            actionCell.appendChild(archiveButton);
+                    // Log the history
+                    const historyRef = ref(db, "history/");
+                    const newHistoryRef = push(historyRef);
+                    set(newHistoryRef, {
+                        action: "Allocate",
+                        details: `Allocated ${qty} of item ${resourceName} from bin ${item.binId} to task ${taskId} for project ${projectName}`,
+                        timestamp: new Date().toISOString()
+                    });
 
-            // Update the inventory
-            updateInventory(resourceName, qty);
+                    // Add expense to the table
+                    const table = document.getElementById('expenseTable');
+                    const newRow = table.insertRow();
 
-            // Clear the form
-            document.getElementById('addExpenseForm').reset();
-            document.getElementById('amount').value = '';
+                    newRow.insertCell(0).innerText = date;
+                    newRow.insertCell(1).innerText = taskId;
+                    newRow.insertCell(2).innerText = projectName;
+                    newRow.insertCell(3).innerText = resourceName;
+                    newRow.insertCell(4).innerText = task;
+                    newRow.insertCell(5).innerText = supplier;
+                    newRow.insertCell(6).innerText = vat;
+                    newRow.insertCell(7).innerText = payee;
+                    newRow.insertCell(8).innerText = qty;
+                    newRow.insertCell(9).innerText = amount.toFixed(2);
+                    newRow.insertCell(10).innerText = total.toFixed(2);
+
+                    const archiveButton = document.createElement('button');
+                    archiveButton.className = 'archive-button';
+                    archiveButton.innerText = 'Archive';
+                    archiveButton.onclick = function() {
+                        archiveTasksById(taskId);
+                    };
+                    const actionCell = newRow.insertCell(11);
+                    actionCell.appendChild(archiveButton);
+
+                    // Clear the form
+                    document.getElementById('addExpenseForm').reset();
+                    document.getElementById('amount').value = '';
+
+                    // Update total cost
+                    updateTotalCost();
+                } else {
+                    alert('Insufficient stock available or item not found in inventory.');
+                }
+            }, { onlyOnce: true });
         });
 
-        function updateInventory(resourceName, qty) {
-            const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
-            const item = inventory.find(i => i.name === resourceName);
+        function updateTotalCost() {
+            const table = document.getElementById('expenseTable');
+            const rows = table.getElementsByTagName('tr');
+            let totalCost = 0;
 
-            if (item) {
-                item.quantity -= qty;
-                if (item.quantity < 0) {
-                    item.quantity = 0;
-                }
-                localStorage.setItem('inventory', JSON.stringify(inventory));
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const rowTotal = parseFloat(cells[10].innerText);
+                totalCost += rowTotal;
             }
+
+            document.getElementById('totalCost').innerText = totalCost.toFixed(2);
         }
 
         function archiveTasks() {
@@ -317,6 +360,7 @@
         function archiveTasksById(taskId) {
             const table = document.getElementById('expenseTable');
             const rows = table.getElementsByTagName('tr');
+            const archivedTasks = JSON.parse(localStorage.getItem('archivedTasks')) || [];
 
             for (let i = rows.length - 1; i >= 0; i--) {
                 const cells = rows[i].getElementsByTagName('td');
@@ -338,6 +382,8 @@
                     table.deleteRow(i);
                 }
             }
+            localStorage.setItem('archivedTasks', JSON.stringify(archivedTasks));
+            updateTotalCost();
         }
 
         function viewArchivedTasks() {
@@ -346,6 +392,7 @@
             const archivedTasksTable = document.getElementById('archivedTasksTable');
             archivedTasksTable.innerHTML = '';
 
+            const archivedTasks = JSON.parse(localStorage.getItem('archivedTasks')) || [];
             archivedTasks.forEach(task => {
                 const newRow = archivedTasksTable.insertRow();
 
@@ -369,6 +416,11 @@
             document.getElementById('archivedContainer').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
         }
+
+        // Load resource names when the page loads
+        window.onload = function() {
+            loadResourceNames();
+        };
     </script>
 </body>
 
