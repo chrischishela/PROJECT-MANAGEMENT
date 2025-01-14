@@ -188,8 +188,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        th,
-        td {
+        th, td {
             text-align: left;
             padding: 15px;
             border-bottom: 1px solid #ddd;
@@ -338,24 +337,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
-        const notifications = [];
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
 
         function showNotification(message) {
             const notificationBadge = document.getElementById('notificationBadge');
             const dropdownMenu = document.getElementById('dropdownMenu');
 
-            notifications.push(message);
+            notifications.push({ message: message, read: false });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
 
-            notificationBadge.style.display = 'block';
-            notificationBadge.textContent = notifications.length;
+            updateNotificationBadge();
+            updateDropdownMenu();
+        }
 
-            const notificationItem = document.createElement('div');
-            notificationItem.className = 'notification-item';
-            notificationItem.innerText = message;
-            dropdownMenu.appendChild(notificationItem);
+        function updateNotificationBadge() {
+            const notificationBadge = document.getElementById('notificationBadge');
+            const unreadCount = notifications.filter(notification => !notification.read).length;
 
-            notificationItem.addEventListener('click', () => {
-                notificationItem.style.backgroundColor = '#f1f1f1';
+            if (unreadCount > 0) {
+                notificationBadge.style.display = 'block';
+                notificationBadge.textContent = unreadCount;
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+
+        function updateDropdownMenu() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.innerHTML = '';
+
+            notifications.forEach((notification, index) => {
+                const notificationItem = document.createElement('div');
+                notificationItem.className = 'notification-item';
+                notificationItem.innerText = notification.message;
+                if (notification.read) {
+                    notificationItem.style.backgroundColor = '#f1f1f1';
+                }
+
+                notificationItem.addEventListener('click', () => {
+                    notifications[index].read = true;
+                    localStorage.setItem('notifications', JSON.stringify(notifications));
+                    updateNotificationBadge();
+                    updateDropdownMenu();
+                });
+
+                dropdownMenu.appendChild(notificationItem);
             });
         }
 
@@ -403,6 +429,8 @@
         window.onload = () => {
             populateUnassignedStaff();
             populateActiveTasks();
+            updateNotificationBadge();
+            updateDropdownMenu();
 
             // Example notifications for testing
             completeTaskByChris();
@@ -414,8 +442,7 @@
         document.getElementById('notificationIcon').addEventListener('click', () => {
             const dropdownMenu = document.getElementById('dropdownMenu');
             dropdownMenu.classList.toggle('show');
-            const notificationBadge = document.getElementById('notificationBadge');
-            notificationBadge.style.display = 'none';
+            updateNotificationBadge();
         });
 
         document.getElementById('toggleSidebar').addEventListener('click', () => {
