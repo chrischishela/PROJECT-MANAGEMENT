@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Expense Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .filter,
+        .archive-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter input,
+        .archive-section button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .archive-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .archive-button,
+        .view-archive-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .view-archive-button {
+            background-color: #17a2b8;
+        }
+
+        .archive-button:hover,
+        .view-archive-button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 18px;
+        }
+
+        .add-expense-form {
+            margin-bottom: 20px;
+        }
+
+        .add-expense-form input,
+        .add-expense-form select,
+        .add-expense-form button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .add-expense-form button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-expense-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="mainContainer">
+        <h1>Task Expense Sheet</h1>
+        <div class="archive-section">
+            <input type="text" id="archiveIdInput" placeholder="Enter Task ID to Archive">
+            <button class="archive-button" onclick="archiveTasks()">Archive All</button>
+            <button class="view-archive-button" onclick="viewArchivedTasks()">View Archived Tasks</button>
+        </div>
+        <div class="filter">
+            <label for="taskFilter">Filter by Task ID:</label>
+            <input type="text" id="taskFilter" placeholder="Enter Task ID">
+        </div>
+        <div class="add-expense-form">
+            <h2>Add New Expense</h2>
+            <form id="addExpenseForm">
+                <input type="date" id="date" required placeholder="Date">
+                <input type="text" id="taskId" required placeholder="Task ID">
+                <input type="text" id="projectName" required placeholder="Project Name">
+                <input type="text" id="task" required placeholder="Task">
+                <input type="text" id="supplier" required placeholder="Supplier">
+                <input type="text" id="vat" required placeholder="VAT">
+                <input type="text" id="payee" required placeholder="Payee">
+                <input type="number" id="qty" required placeholder="Quantity">
+                <select id="resourceName" required>
+                    <option value="">Select Resource Name</option>
+                </select>
+                <input type="number" id="amount" required placeholder="Amount" readonly>
+                <button type="submit">Add Expense</button>
+            </form>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>DATE</th>
+                    <th>TASK ID</th>
+                    <th>PROJECT NAME</th>
+                    <th>RESOURCE NAME</th>
+                    <th>TASK</th>
+                    <th>SUPPLIER</th>
+                    <th>VAT</th>
+                    <th>PAYEE</th>
+                    <th>QTY</th>
+                    <th>AMOUNT</th>
+                    <th>TOTAL</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody id="expenseTable">
+                <!-- Expense rows will be added here dynamically -->
+            </tbody>
+        </table>
+        <div class="total">
+            Total Cost of Task: <span id="totalCost">0</span>
+        </div>
+    </div>
+
+    <div class="container" id="archivedContainer" style="display:none;">
+        <h1>Archived Tasks</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>DATE</th>
+                    <th>TASK ID</th>
+                    <th>PROJECT NAME</th>
+                    <th>RESOURCE NAME</th>
+                    <th>TASK</th>
+                    <th>SUPPLIER</th>
+                    <th>VAT</th>
+                    <th>PAYEE</th>
+                    <th>QTY</th>
+                    <th>AMOUNT</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="archivedTasksTable">
+                <!-- Archived tasks will be added here dynamically -->
+            </tbody>
+        </table>
+        <button class="view-archive-button" onclick="viewMainTasks()">Back to Main Tasks</button>
+    </div>
+
+    <script>
+        // Sample price list array
+        const priceList = [
+            { id: 1, name: 'Welding Rods', price: 2.14 },
+            { id: 2, name: 'Cutting Disk', price: 65.00 },
+            { id: 3, name: 'Grinding Disk', price: 75.00 },
+            { id: 4, name: 'R1 16mm', price: 0.40 },
+            { id: 5, name: 'R1 30mm', price: 0.50 },
+            { id: 6, name: 'R2 30mm', price: 0.50 },
+            { id: 7, name: 'R1 50mm', price: 0.60 }
+        ];
+
+        // Array to store archived tasks
+        const archivedTasks = [];
+
+        // Populate the resource name dropdown with price list items
+        const resourceNameSelect = document.getElementById('resourceName');
+        priceList.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.price;
+            option.text = item.name;
+            resourceNameSelect.appendChild(option);
+        });
+
+        // Update amount input when a resource name is selected
+        resourceNameSelect.addEventListener('change', function() {
+            document.getElementById('amount').value = this.value;
+        });
+
+        document.getElementById('taskFilter').addEventListener('input', function() {
+            const filterValue = this.value;
+            const table = document.getElementById('expenseTable');
+            const rows = table.getElementsByTagName('tr');
+            let totalCost = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const taskId = cells[1].innerText;
+                const rowTotal = parseFloat(cells[10].innerText);
+
+                if (taskId.includes(filterValue)) {
+                    rows[i].style.display = '';
+                    totalCost += rowTotal;
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+
+            document.getElementById('totalCost').innerText = totalCost.toFixed(2);
+        });
+
+        document.getElementById('addExpenseForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const date = document.getElementById('date').value;
+            const taskId = document.getElementById('taskId').value;
+            const projectName = document.getElementById('projectName').value;
+            const task = document.getElementById('task').value;
+            const supplier = document.getElementById('supplier').value;
+            const vat = document.getElementById('vat').value;
+            const payee = document.getElementById('payee').value;
+            const qty = parseInt(document.getElementById('qty').value);
+            const resourceName = resourceNameSelect.options[resourceNameSelect.selectedIndex].text;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const total = qty * amount;
+
+            const table = document.getElementById('expenseTable');
+            const newRow = table.insertRow();
+
+            newRow.insertCell(0).innerText = date;
+            newRow.insertCell(1).innerText = taskId;
+            newRow.insertCell(2).innerText = projectName;
+            newRow.insertCell(3).innerText = resourceName;
+            newRow.insertCell(4).innerText = task;
+            newRow.insertCell(5).innerText = supplier;
+            newRow.insertCell(6).innerText = vat;
+            newRow.insertCell(7).innerText = payee;
+            newRow.insertCell(8).innerText = qty;
+            newRow.insertCell(9).innerText = amount.toFixed(2);
+            newRow.insertCell(10).innerText = total.toFixed(2);
+
+            const archiveButton = document.createElement('button');
+            archiveButton.className = 'archive-button';
+            archiveButton.innerText = 'Archive';
+            archiveButton.onclick = function() {
+                archiveTasksById(taskId);
+            };
+            const actionCell = newRow.insertCell(11);
+            actionCell.appendChild(archiveButton);
+
+            // Update the inventory
+            updateInventory(resourceName, qty);
+
+            // Clear the form
+            document.getElementById('addExpenseForm').reset();
+            document.getElementById('amount').value = '';
+        });
+
+        function updateInventory(resourceName, qty) {
+            const inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            const item = inventory.find(i => i.name === resourceName);
+
+            if (item) {
+                item.quantity -= qty;
+                if (item.quantity < 0) {
+                    item.quantity = 0;
+                }
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+            }
+        }
+
+        function archiveTasks() {
+            const archiveId = document.getElementById('archiveIdInput').value;
+            archiveTasksById(archiveId);
+        }
+
+        function archiveTasksById(taskId) {
+            const table = document.getElementById('expenseTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = rows.length - 1; i >= 0; i--) {
+                const cells = rows[i].getElementsByTagName('td');
+                if (cells[1].innerText === taskId) {
+                    const archivedTask = {
+                        date: cells[0].innerText,
+                        taskId: cells[1].innerText,
+                        projectName: cells[2].innerText,
+                        resourceName: cells[3].innerText,
+                        task: cells[4].innerText,
+                        supplier: cells[5].innerText,
+                        vat: cells[6].innerText,
+                        payee: cells[7].innerText,
+                        qty: cells[8].innerText,
+                        amount: cells[9].innerText,
+                        total: cells[10].innerText
+                    };
+                    archivedTasks.push(archivedTask);
+                    table.deleteRow(i);
+                }
+            }
+        }
+
+        function viewArchivedTasks() {
+            document.getElementById('mainContainer').style.display = 'none';
+            const archivedContainer = document.getElementById('archivedContainer');
+            const archivedTasksTable = document.getElementById('archivedTasksTable');
+            archivedTasksTable.innerHTML = '';
+
+            archivedTasks.forEach(task => {
+                const newRow = archivedTasksTable.insertRow();
+
+                newRow.insertCell(0).innerText = task.date;
+                newRow.insertCell(1).innerText = task.taskId;
+                newRow.insertCell(2).innerText = task.projectName;
+                newRow.insertCell(3).innerText = task.resourceName;
+                newRow.insertCell(4).innerText = task.task;
+                newRow.insertCell(5).innerText = task.supplier;
+                newRow.insertCell(6).innerText = task.vat;
+                newRow.insertCell(7).innerText = task.payee;
+                newRow.insertCell(8).innerText = task.qty;
+                newRow.insertCell(9).innerText = task.amount;
+                newRow.insertCell(10).innerText = task.total;
+            });
+
+            archivedContainer.style.display = 'block';
+        }
+
+        function viewMainTasks() {
+            document.getElementById('archivedContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>

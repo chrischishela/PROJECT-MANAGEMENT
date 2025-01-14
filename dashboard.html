@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            position: fixed;
+            height: 100%;
+            padding-top: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #495057;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        .sidebar ul li:hover {
+            background-color: #495057;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.shifted {
+            margin-left: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #343a40;
+            color: #fff;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .header .notification {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .header .notification i {
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .header .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .header .dropdown-menu {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: none;
+            width: 250px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .header .dropdown-menu.show {
+            display: block;
+        }
+
+        .header .dropdown-menu .notification-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .header .dropdown-menu .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .header .dropdown-menu .notification-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 30%;
+            margin-bottom: 20px;
+        }
+
+        .card i {
+            font-size: 50px;
+            margin-bottom: 10px;
+            color: #17a2b8;
+        }
+
+        .card h3 {
+            margin: 10px 0;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .table-section {
+            margin-top: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Media queries for responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.closed {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .main-content.shifted {
+                margin-left: 250px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .header .notification i {
+                font-size: 20px;
+            }
+
+            .cards {
+                flex-direction: column;
+            }
+
+            .card {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar closed">
+        <h2>IMS Portal</h2>
+        <ul>
+            <li><a href="employee_task_manager.html"><i class="fas fa-users"></i> Staff</a></li>
+            <li><a href="DailyReport.html"><i class="fas fa-tasks"></i> Daily Report</a></li>
+            <li><a href="Chris.html"><i class="fas fa-user"></i> Chris</a></li>
+            <li><a href="minutes.html"><i class="fas fa-clock"></i> Minutes</a></li>
+            <li><a href="Tool.html"><i class="fas fa-tools"></i> Tools</a></li>
+            <li><a href="Inventory.html"><i class="fas fa-boxes"></i> Inventory</a></li>
+            <li><a href="Tasksheet.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+            <li><a href="Accounts.html"><i class="fas fa-cogs"></i> Accounts</a></li>
+            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content shifted">
+        <div class="header">
+            <h1>PENTA CONSTRUCTION</h1>
+            <button id="toggleSidebar" class="btn btn-outline-light btn-sm">Toggle Sidebar</button>
+            <div style="display: flex; align-items: center;">
+                <div class="notification">
+                    <i class="fas fa-bell" id="notificationIcon" style="cursor: pointer;"></i>
+                    <span id="notificationBadge" class="badge"></span>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <!-- Notifications will be dynamically added here -->
+                    </div>
+                </div>
+                <span style="margin-left: 20px;">Welcome, <span id="username">User</span>
+                    <button class="btn btn-outline-light btn-sm" onclick="window.location.href='login.html';">Logout</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <i class="fas fa-user-plus" style="color: #e74c3c;"></i>
+                <h3>Staff</h3>
+                <a href="employee_task_manager.html">Click here to view</a>
+            </div>
+
+            <div class="card">
+                <i class="fas fa-wrench" style="color: #8e44ad;"></i>
+                <h3>Tools</h3>
+                <a href="Tool.html">Click here to view</a>
+            </div>
+
+            <div class="card">
+                <i class="fas fa-box" style="color: #f39c12;"></i>
+                <h3>Inventory</h3>
+                <a href="Inventory.html">Click here to view</a>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h2>Unassigned Staff</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                    </tr>
+                </thead>
+                <tbody id="unassignedStaffTable"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section">
+            <h2>Active Tasks</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Task Name</th>
+                        <th>Assigned To</th>
+                        <th>Start Date</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody id="activeTasksTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const mockEmployees = [
+            { staffId: 1, name: 'John', surname: 'Doe', workLocation: 'Office', position: 'Developer', status: 'Unassigned' },
+            { staffId: 2, name: 'Jane', surname: 'Smith', workLocation: 'Remote', position: 'Designer', status: 'Active' },
+            { staffId: 3, name: 'Mike', surname: 'Johnson', workLocation: 'Office', position: 'Manager', status: 'Unassigned' },
+            { staffId: 4, name: 'Emily', surname: 'Davis', workLocation: 'Remote', position: 'Developer', status: 'Active' }
+        ];
+
+        const notifications = [];
+
+        function showNotification(message) {
+            const notificationBadge = document.getElementById('notificationBadge');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+
+            notifications.push(message);
+
+            notificationBadge.style.display = 'block';
+            notificationBadge.textContent = notifications.length;
+
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            notificationItem.innerText = message;
+            dropdownMenu.appendChild(notificationItem);
+
+            notificationItem.addEventListener('click', () => {
+                notificationItem.style.backgroundColor = '#f1f1f1';
+            });
+        }
+
+        function populateUnassignedStaff(employees) {
+            const unassignedEmployees = employees.filter(employee => employee.status === 'Unassigned');
+            const tableBody = document.getElementById('unassignedStaffTable');
+            tableBody.innerHTML = '';
+
+            if (unassignedEmployees.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2">No unassigned employees found.</td></tr>';
+            }
+
+            unassignedEmployees.forEach(employee => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerText = `${employee.name} ${employee.surname}`;
+                row.insertCell(1).innerText = employee.position;
+            });
+        }
+
+        function populateActiveTasks(employees) {
+            const activeTasks = employees.filter(employee => employee.status === 'Active');
+            const tableBody = document.getElementById('activeTasksTable');
+            tableBody.innerHTML = '';
+
+            if (activeTasks.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">No active tasks found.</td></tr>';
+            }
+
+            activeTasks.forEach(task => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerText = task.workLocation;
+                row.insertCell(1).innerText = task.position;
+                row.insertCell(2).innerText = `${task.name} ${task.surname}`;
+                row.insertCell(3).innerText = 'N/A';
+                row.insertCell(4).innerText = 'N/A';
+            });
+        }
+
+        // Simulate task completion by Chris
+        function completeTaskByChris() {
+            showNotification('Chris has completed a task.');
+        }
+
+        window.onload = () => {
+            populateUnassignedStaff(mockEmployees);
+            populateActiveTasks(mockEmployees);
+
+            // Example notifications for testing
+            completeTaskByChris();
+
+            // Set the username
+            document.getElementById('username').innerText = 'chrischishela';
+        };
+
+        document.getElementById('notificationIcon').addEventListener('click', () => {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.classList.toggle('show');
+            const notificationBadge = document.getElementById('notificationBadge');
+            notificationBadge.style.display = 'none';
+        });
+
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('shifted');
+        });
+    </script>
+</body>
+
+</html>

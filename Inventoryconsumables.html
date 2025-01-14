@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Consumables</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        .form-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+        }
+
+        .toggle-button {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Inventory Consumables</h1>
+
+        <!-- Form to add new items -->
+        <form id="inventoryForm">
+            <div class="form-row">
+                <div>
+                    <label for="itemId">Item ID:</label>
+                    <input type="text" id="itemId" required>
+                </div>
+                <div>
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div>
+                    <label for="itemQuantity">Quantity:</label>
+                    <input type="number" id="itemQuantity" required>
+                </div>
+            </div>
+            <button type="submit">Add Item</button>
+        </form>
+
+        <!-- Table to display inventory -->
+        <table id="inventoryTable">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+                <!-- Rows will be added dynamically here -->
+            </tbody>
+        </table>
+
+        <!-- Form to issue out items -->
+        <div id="issueOutForm" class="form-section">
+            <h2>Issue Out Item</h2>
+            <form id="issueOutDetailsForm">
+                <div class="form-row">
+                    <div>
+                        <label for="issueItemId">Item ID:</label>
+                        <input type="text" id="issueItemId" readonly>
+                    </div>
+                    <div>
+                        <label for="issueDate">Date:</label>
+                        <input type="date" id="issueDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label for="issuePersonnel">Personnel:</label>
+                        <input type="text" id="issuePersonnel" required>
+                    </div>
+                    <div>
+                        <label for="issueLocation">Location:</label>
+                        <input type="text" id="issueLocation" required>
+                    </div>
+                </div>
+                <button type="submit">Issue Item</button>
+                <button type="button" id="closeIssueOutForm">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Button to toggle issued out items -->
+        <button id="toggleIssuedOutButton" class="toggle-button">Show Issued Out Items</button>
+
+        <!-- Table to display issued out items -->
+        <div id="issuedOutSection" class="form-section">
+            <h2>Issued Out Items</h2>
+            <table id="issuedOutTable">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Personnel</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="issuedOutTableBody">
+                    <!-- Rows will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to log history
+        function logHistory(action, details) {
+            const historyRef = ref(db, "history/");
+            const newHistoryRef = push(historyRef);
+            set(newHistoryRef, {
+                action,
+                details,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Load inventory data from Firebase
+        function loadInventory() {
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                inventoryTableBody.innerHTML = ''; // Clear existing table rows
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
+                        const newRow = inventoryTableBody.insertRow();
+                        newRow.insertCell(0).textContent = item.binId;
+                        newRow.insertCell(1).textContent = item.name;
+                        newRow.insertCell(2).textContent = item.stockAvailable;
+                        newRow.insertCell(3).innerHTML = `<button class="issue-button" onclick="openIssueOutForm('${item.binId}', '${item.name}', ${item.stockAvailable})">Issue Out</button>`;
+                    });
+                }
+            });
+        }
+
+        // Save inventory data to Firebase
+        function saveInventory(item) {
+            const inventoryRef = ref(db, "inventory/");
+            onValue(inventoryRef, (snapshot) => {
+                const data = snapshot.val();
+                let itemKey = null;
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        if (data[key].binId === item.binId && data[key].name === item.name) {
+                            itemKey = key;
+                        }
+                    });
+                }
+
+                if (itemKey) {
+                    const itemRef = ref(db, `inventory/${itemKey}`);
+                    update(itemRef, {
+                        stockAvailable: data[itemKey].stockAvailable + item.stockAvailable
+                    });
+                    logHistory("Update", `Updated item ${item.name} in bin ${item.binId}, added ${item.stockAvailable} to stock.`);
+                } else {
+                    const newItemRef = push(inventoryRef);
+                    set(newItemRef, item);
+                    logHistory("Add", `Added new item ${item.name} to bin ${item.binId} with stock ${item.stockAvailable}.`);
+                }
+            }, { onlyOnce: true });
+        }
+
+        // Load issued out items from localStorage
+        function loadIssuedOutItems() {
+            const issuedOutItems = JSON.parse(localStorage.getItem('issuedOutItems')) || [];
+            issuedOutTableBody.innerHTML = ''; // Clear existing rows
+
+            issuedOutItems.forEach(item => {
+                const row = issuedOutTableBody.insertRow();
+                row.insertCell(0).textContent = item.id;
+                row.insertCell(1).textContent = item.name;
+                row.insertCell(2).textContent = item.quantity;
+                row.insertCell(3).textContent = item.date;
+                row.insertCell(4).textContent = item.personnel;
+                row.insertCell(5).textContent = item.location;
+            });
+        }
+
+        // Save issued out items to localStorage
+        function saveIssuedOutItem(item) {
+            const issuedOutItems = JSON.parse(localStorage.getItem('issuedOutItems')) || [];
+            issuedOutItems.push(item);
+            localStorage.setItem('issuedOutItems', JSON.stringify(issuedOutItems));
+            loadIssuedOutItems();
+        }
+
+        // Open issue out form
+        window.openIssueOutForm = function(id, name, quantity) {
+            issueItemId.value = id;
+            issueOutForm.style.display = 'block';
+        }
+
+        // Close the issue out form
+        closeIssueOutForm.addEventListener('click', function() {
+            issueOutForm.style.display = 'none';
+        });
+
+        // Toggle visibility of issued out items section
+        toggleIssuedOutButton.addEventListener('click', function() {
+            if (issuedOutSection.style.display === 'none' || issuedOutSection.style.display === '') {
+                issuedOutSection.style.display = 'block';
+                toggleIssuedOutButton.innerText = 'Hide Issued Out Items';
+            } else {
+                issuedOutSection.style.display = 'none';
+                toggleIssuedOutButton.innerText = 'Show Issued Out Items';
+            }
+        });
+
+        // Handle the form submission for adding inventory
+        inventoryForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const binId = document.getElementById('itemId').value;
+            const name = document.getElementById('itemName').value;
+            const stockAvailable = parseInt(document.getElementById('itemQuantity').value);
+
+            const item = {
+                binId,
+                name,
+                stockAvailable,
+                requested: 0
+            };
+
+            // Save item to Firebase
+            saveInventory(item);
+
+            // Clear the form after submission
+            inventoryForm.reset();
+        });
+
+        // Handle the form submission for issuing out inventory
+        issueOutDetailsForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const id = issueItemId.value;
+            const date = document.getElementById('issueDate').value;
+            const personnel = document.getElementById('issuePersonnel').value;
+            const location = document.getElementById('issueLocation').value;
+
+            const rowToDelete = [...inventoryTableBody.rows].find(row => row.cells[0].innerText === id);
+            if (rowToDelete) {
+                const name = rowToDelete.cells[1].innerText;
+                const quantity = rowToDelete.cells[2].innerText;
+
+                inventoryTableBody.deleteRow(rowToDelete.rowIndex - 1);
+
+                const issuedOutItem = {
+                    id: id,
+                    name: name,
+                    quantity: quantity,
+                    date: date,
+                    personnel: personnel,
+                    location: location
+                };
+
+                // Save issued out item to localStorage
+                saveIssuedOutItem(issuedOutItem);
+
+                // Update inventory in Firebase
+                const inventoryRef = ref(db, "inventory/");
+                onValue(inventoryRef, (snapshot) => {
+                    const data = snapshot.val();
+                    let itemKey = null;
+                    if (data) {
+                        Object.keys(data).forEach((key) => {
+                            if (data[key].binId === id && data[key].name === name) {
+                                itemKey = key;
+                            }
+                        });
+                    }
+
+                    if (itemKey) {
+                        const itemRef = ref(db, `inventory/${itemKey}`);
+                        update(itemRef, {
+                            stockAvailable: data[itemKey].stockAvailable - quantity
+                        });
+                        logHistory("Issue", `Issued item ${name} from bin ${id}, quantity: ${quantity}, to ${personnel} at ${location}`);
+                    }
+                }, { onlyOnce: true });
+            }
+
+            issueOutForm.style.display = 'none';
+        });
+
+        // Load initial inventory and issued out items data
+        window.onload = function() {
+            loadInventory();
+            loadIssuedOutItems();
+        };
+    </script>
+</body>
+
+</html>

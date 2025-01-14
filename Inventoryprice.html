@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Price List</h1>
+        <div class="actions">
+            <button id="addItemBtn">Add Item</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price (ZMW)</th>
+                </tr>
+            </thead>
+            <tbody id="priceListTable">
+                <tr>
+                    <td>1</td>
+                    <td>BRIGHTON MATOLOKOSH</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>CAPHAS TEMBO</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>CLISHA MAMBILIMA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>DABSON DAKA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>DANNY MVULA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>JAMES DAKA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>JOSEPH TEMBO</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>LUCKSON PHIRI</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>MICHEAL LOBELA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>OBERT SIAME</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>DOMINIC SAKALA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>PETER MAWERE</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>SAVIOUR PHIRI</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td>TEMBEYA SAKALA</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>KELVIN SIAME</td>
+                    <td>ZMW 20.00</td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td>Welding Rods</td>
+                    <td>ZMW 2.14</td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>Cutting Disk</td>
+                    <td>ZMW 65.00</td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td>Grinding Disk</td>
+                    <td>ZMW 75.00</td>
+                </tr>
+                <tr>
+                    <td>19</td>
+                    <td>R1 16mm</td>
+                    <td>ZMW 0.40</td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                    <td>R1 30mm</td>
+                    <td>ZMW 0.50</td>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td>R2 30mm</td>
+                    <td>ZMW 0.50</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>R1 50mm</td>
+                    <td>ZMW 0.60</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Item</h2>
+            <form id="addItemForm">
+                <label for="itemId">ID:</label>
+                <input type="text" id="itemId" name="itemId" required>
+                
+                <label for="itemName">Name:</label>
+                <input type="text" id="itemName" name="itemName" required>
+                
+                <label for="itemPrice">Price (ZMW):</label>
+                <input type="text" id="itemPrice" name="itemPrice" required>
+                
+                <button type="submit">Add Item</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get modal elements
+        const modal = document.getElementById("addItemModal");
+        const addItemBtn = document.getElementById("addItemBtn");
+        const closeBtn = document.getElementsByClassName("close")[0];
+        const addItemForm = document.getElementById("addItemForm");
+        const priceListTable = document.getElementById("priceListTable");
+
+        // Open modal
+        addItemBtn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // Close modal
+        closeBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close modal if outside click
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Handle form submission
+        addItemForm.onsubmit = function (event) {
+            event.preventDefault();
+            const id = document.getElementById("itemId").value;
+            const name = document.getElementById("itemName").value;
+            const price = document.getElementById("itemPrice").value;
+
+            const newRow = priceListTable.insertRow();
+            newRow.insertCell(0).innerText = id;
+            newRow.insertCell(1).innerText = name;
+            newRow.insertCell(2).innerText = `ZMW ${price}`;
+
+            // Clear form and close modal
+            addItemForm.reset();
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .inventory-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button, input[type="text"], input[type="date"], textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle-form-btn, .toggle-issued-out-btn, #closeAssignFormBtn {
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .form-container {
+            margin: 20px;
+            display: none;
+        }
+
+        input[type="text"], input[type="date"], textarea {
+            width: calc(100% - 22px); /* Adjusted for padding and border */
+        }
+
+        .form-container h2 {
+            color: #007bff;
+        }
+
+        #searchInput {
+            padding: 10px;
+            margin: 20px 0;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        thead {
+            display: table;
+            width: calc(100% - 17px); /* Adjust for scrollbar width */
+        }
+
+        tbody {
+            display: block;
+            max-height: 400px; /* Adjust as needed */
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        th, td {
+            width: 16.66%; /* Adjust to fit the number of columns */
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        .form-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+        }
+
+        .toggle-button {
+            margin: 10px 0;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to clear all employees
+        async function clearEmployees() {
+            const employeesRef = ref(db, "employees/");
+            await remove(employeesRef);
+        }
+
+        // Function to add new employees
+        async function addNewEmployees() {
+            const employeesRef = ref(db, "employees/");
+            const newEmployees = [
+                { staffId: 1, name: "Christopher", surname: "Chishela", position: "Project Inventory Manager" },
+                { staffId: 2, name: "Brighton", surname: "Matolokosh", position: "Painter" },
+                { staffId: 3, name: "Caphas", surname: "Tembo", position: "General" },
+                { staffId: 4, name: "Clisha", surname: "Mwambila", position: "General" },
+                { staffId: 5, name: "Dabson", surname: "Daka", position: "Builder" },
+                { staffId: 6, name: "Danny", surname: "Mvula", position: "Builder" },
+                { staffId: 7, name: "James", surname: "Daka", position: "Builder" },
+                { staffId: 8, name: "Joseph", surname: "Tembo", position: "Plumber" },
+                { staffId: 9, name: "Luckson", surname: "Phiri", position: "General" },
+                { staffId: 10, name: "Micheal", surname: "Lobela", position: "Carpenter" },
+                { staffId: 11, name: "Obert", surname: "Siame", position: "Electrician" },
+                { staffId: 12, name: "Dominic", surname: "Sakala", position: "Welder" },
+                { staffId: 13, name: "Peter", surname: "Mawere", position: "Assistant Electrician" },
+                { staffId: 14, name: "Saviour", surname: "Phiri", position: "Carpenter" },
+                { staffId: 15, name: "Tembeya", surname: "Sakala", position: "Welder" },
+                { staffId: 16, name: "Kelvin", surname: "Siame", position: "General" }
+            ];
+
+            newEmployees.forEach(employee => {
+                const newEmployeeRef = push(employeesRef);
+                set(newEmployeeRef, employee);
+            });
+        }
+
+        // Function to load employees from Firebase
+        function loadEmployees() {
+            const employeesRef = ref(db, "employees/");
+            const tableBody = document.getElementById('employeeTable').getElementsByTagName('tbody')[0];
+            onValue(employeesRef, (snapshot) => {
+                tableBody.innerHTML = ''; // Clear existing rows
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        const employee = data[key];
+                        const newRow = tableBody.insertRow();
+                        newRow.insertCell(0).innerText = employee.staffId;
+                        newRow.insertCell(1).innerText = employee.name;
+                        newRow.insertCell(2).innerText = employee.surname;
+                        newRow.insertCell(3).innerText = employee.position;
+                        newRow.insertCell(4).innerText = employee.status || 'Unassigned';
+
+                        // Add Assign/Unassign Task button
+                        const toggleButtonCell = newRow.insertCell(5);
+                        const toggleButton = document.createElement('button');
+                        toggleButton.innerText = employee.status === 'Assigned' ? 'Unassign Task' : 'Assign Task';
+                        toggleButton.onclick = () => toggleTaskStatus(key, employee.status);
+                        toggleButtonCell.appendChild(toggleButton);
+                    });
+                }
+            });
+        }
+
+        // Add new employee to Firebase
+        document.getElementById('employeeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const staffId = document.getElementById('staffId').value;
+            const name = document.getElementById('name').value;
+            const surname = document.getElementById('surname').value;
+            const position = document.getElementById('position').value;
+
+            const newEmployee = {
+                staffId,
+                name,
+                surname,
+                position,
+                status: 'Unassigned'
+            };
+
+            const employeesRef = ref(db, "employees/");
+            const newEmployeeRef = push(employeesRef);
+            set(newEmployeeRef, newEmployee);
+
+            document.getElementById('employeeForm').reset();
+            document.getElementById('formContainer').style.display = 'none';
+        });
+
+        // Toggle task assignment status
+        function toggleTaskStatus(key, currentStatus) {
+            const employeeRef = ref(db, `employees/${key}`);
+            const newStatus = currentStatus === 'Assigned' ? 'Unassigned' : 'Assigned';
+            update(employeeRef, { status: newStatus });
+        }
+
+        // Toggle the "Add Employee" form
+        document.getElementById('toggleButton').addEventListener('click', function () {
+            const formContainer = document.getElementById('formContainer');
+            formContainer.style.display = (formContainer.style.display === 'none' || formContainer.style.display === '') ? 'block' : 'none';
+        });
+
+        // Search table
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('employeeTable');
+            const rows = table.getElementsByTagName('tr');
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let rowMatches = false;
+                for (let cell of cells) {
+                    if (cell.innerText.toLowerCase().includes(filter)) {
+                        rowMatches = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = rowMatches ? '' : 'none';
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async () => {
+            await clearEmployees();
+            await addNewEmployees();
+            loadEmployees();
+        });
+    </script>
+</head>
+<body>
+    <button id="toggleButton">Add Employee</button>
+    <input type="text" id="searchInput" placeholder="Search employees by name, ID, etc." onkeyup="searchTable()">
+    <div class="form-container" id="formContainer">
+        <h2>Add New Employee</h2>
+        <form id="employeeForm">
+            <input type="text" id="staffId" placeholder="Staff ID" required>
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="text" id="surname" placeholder="Surname" required>
+            <input type="text" id="position" placeholder="Position" required>
+            <button type="submit">Add Employee</button>
+        </form>
+    </div>
+    <div class="inventory-container">
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>Staff ID</th>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Assign/Unassign Task</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Employee rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

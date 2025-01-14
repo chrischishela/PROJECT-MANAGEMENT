@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Inventory Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        .form-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+        }
+
+        .toggle-button {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Fixed Inventory Items</h1>
+
+        <!-- Form to add new items -->
+        <form id="inventoryForm">
+            <div class="form-row">
+                <div>
+                    <label for="itemId">Item ID:</label>
+                    <input type="text" id="itemId" required>
+                </div>
+                <div>
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div>
+                    <label for="itemQuantity">Quantity:</label>
+                    <input type="number" id="itemQuantity" required>
+                </div>
+            </div>
+            <button type="submit">Add Item</button>
+        </form>
+
+        <!-- Table to display inventory -->
+        <table id="inventoryTable">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+                <!-- Rows will be added dynamically here -->
+            </tbody>
+        </table>
+
+        <!-- Form to issue out items -->
+        <div id="issueOutForm" class="form-section">
+            <h2>Issue Out Item</h2>
+            <form id="issueOutDetailsForm">
+                <div class="form-row">
+                    <div>
+                        <label for="issueItemId">Item ID:</label>
+                        <input type="text" id="issueItemId" readonly>
+                    </div>
+                    <div>
+                        <label for="issueDate">Date:</label>
+                        <input type="date" id="issueDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label for="issuePersonnel">Personnel:</label>
+                        <input type="text" id="issuePersonnel" required>
+                    </div>
+                    <div>
+                        <label for="issueLocation">Location:</label>
+                        <input type="text" id="issueLocation" required>
+                    </div>
+                </div>
+                <button type="submit">Issue Item</button>
+                <button type="button" id="closeIssueOutForm">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Button to toggle issued out items -->
+        <button id="toggleIssuedOutButton" class="toggle-button">Show Issued Out Items</button>
+
+        <!-- Table to display issued out items -->
+        <div id="issuedOutSection" class="form-section">
+            <h2>Issued Out Items</h2>
+            <table id="issuedOutTable">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Personnel</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="issuedOutTableBody">
+                    <!-- Rows will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const inventoryForm = document.getElementById('inventoryForm');
+        const issueOutForm = document.getElementById('issueOutForm');
+        const issueOutDetailsForm = document.getElementById('issueOutDetailsForm');
+        const inventoryTableBody = document.getElementById('inventoryTableBody');
+        const issueItemId = document.getElementById('issueItemId');
+        const closeIssueOutForm = document.getElementById('closeIssueOutForm');
+        const issuedOutSection = document.getElementById('issuedOutSection');
+        const toggleIssuedOutButton = document.getElementById('toggleIssuedOutButton');
+        const issuedOutTableBody = document.getElementById('issuedOutTableBody');
+
+        // Add new item to the inventory
+        inventoryForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const itemId = document.getElementById('itemId').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemQuantity = document.getElementById('itemQuantity').value;
+
+            const newRow = inventoryTableBody.insertRow();
+
+            newRow.insertCell(0).innerText = itemId;
+            newRow.insertCell(1).innerText = itemName;
+            newRow.insertCell(2).innerText = itemQuantity;
+
+            const issueButton = document.createElement('button');
+            issueButton.innerText = 'Issue Out';
+            issueButton.className = 'issue-button';
+            issueButton.onclick = function() {
+                issueItemId.value = itemId;
+                issueOutForm.style.display = 'block';
+            };
+            newRow.insertCell(3).appendChild(issueButton);
+
+            inventoryForm.reset();
+        });
+
+        // Issue out item
+        issueOutDetailsForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const issueDate = document.getElementById('issueDate').value;
+            const issuePersonnel = document.getElementById('issuePersonnel').value;
+            const issueLocation = document.getElementById('issueLocation').value;
+
+            const rowToDelete = [...inventoryTableBody.rows].find(row => row.cells[0].innerText === issueItemId.value);
+            if (rowToDelete) {
+                const itemName = rowToDelete.cells[1].innerText;
+                const itemQuantity = rowToDelete.cells[2].innerText;
+
+                inventoryTableBody.deleteRow(rowToDelete.rowIndex - 1);
+
+                const newIssuedOutRow = issuedOutTableBody.insertRow();
+                newIssuedOutRow.insertCell(0).innerText = issueItemId.value;
+                newIssuedOutRow.insertCell(1).innerText = itemName;
+                newIssuedOutRow.insertCell(2).innerText = itemQuantity;
+                newIssuedOutRow.insertCell(3).innerText = issueDate;
+                newIssuedOutRow.insertCell(4).innerText = issuePersonnel;
+                newIssuedOutRow.insertCell(5).innerText = issueLocation;
+
+                // Save issued out item to localStorage
+                const issuedOutItems = JSON.parse(localStorage.getItem('issuedOutItems')) || [];
+                issuedOutItems.push({
+                    id: issueItemId.value,
+                    name: itemName,
+                    quantity: itemQuantity,
+                    date: issueDate,
+                    personnel: issuePersonnel,
+                    location: issueLocation
+                });
+                localStorage.setItem('issuedOutItems', JSON.stringify(issuedOutItems));
+            }
+
+            issueOutForm.style.display = 'none';
+        });
+
+        // Close the issue out form
+        closeIssueOutForm.addEventListener('click', function() {
+            issueOutForm.style.display = 'none';
+        });
+
+        // Toggle visibility of issued out items section
+        toggleIssuedOutButton.addEventListener('click', function() {
+            if (issuedOutSection.style.display === 'none' || issuedOutSection.style.display === '') {
+                issuedOutSection.style.display = 'block';
+                toggleIssuedOutButton.innerText = 'Hide Issued Out Items';
+            } else {
+                issuedOutSection.style.display = 'none';
+                toggleIssuedOutButton.innerText = 'Show Issued Out Items';
+            }
+        });
+
+        // Load issued out items from localStorage on page load
+        function loadIssuedOutItems() {
+            const issuedOutItems = JSON.parse(localStorage.getItem('issuedOutItems')) || [];
+            issuedOutItems.forEach(item => {
+                const newRow = issuedOutTableBody.insertRow();
+                newRow.insertCell(0).innerText = item.id;
+                newRow.insertCell(1).innerText = item.name;
+                newRow.insertCell(2).innerText = item.quantity;
+                newRow.insertCell(3).innerText = item.date;
+                newRow.insertCell(4).innerText = item.personnel;
+                newRow.insertCell(5).innerText = item.location;
+            });
+        }
+
+        // Load issued out items on page load
+        window.onload = function() {
+            loadIssuedOutItems();
+        };
+    </script>
+</body>
+
+</html>

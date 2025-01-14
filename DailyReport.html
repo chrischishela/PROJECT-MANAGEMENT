@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Task Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .column {
+            width: 48%;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .column h2 {
+            text-align: center;
+            color: #007bff;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: #f1f9ff;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="column" id="morningReport">
+            <h2>Morning Report</h2>
+            <table contenteditable="true">
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>ASS</th>
+                        <th>TASK DESCRIPTION</th>
+                        <th>LOCATION</th>
+                        <th>TASK</th>
+                        <th>MAN POWER</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BRIGHTON MATOLOKOSH</td>
+                        <td>TRUE</td>
+                        <td>building -02</td>
+                        <td>MR MUSSA</td>
+                        <td>Garden maintenance</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>DABSON DAKA</td>
+                        <td>TRUE</td>
+                        <td>building -02</td>
+                        <td>MR MUSSA</td>
+                        <td>building -02</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>DANNY MVULA</td>
+                        <td>TRUE</td>
+                        <td>installing metal sheet</td>
+                        <td>FARM</td>
+                        <td>building -01</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>JAMES DAKA</td>
+                        <td>TRUE</td>
+                        <td>installing metal sheet</td>
+                        <td>FARM</td>
+                        <td>general plumbing</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>JOSEPH TEMBO</td>
+                        <td>TRUE</td>
+                        <td>general plumbing</td>
+                        <td>LUBU</td>
+                        <td>db installation in server room</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>LUCKSON PHIRI</td>
+                        <td>TRUE</td>
+                        <td>building -01</td>
+                        <td>MR MUSSA</td>
+                        <td>light pole installation</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>CAPHAS TEMBO</td>
+                        <td>TRUE</td>
+                        <td>Garden maintenance</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td>ABSENT</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>OBERT SIAME</td>
+                        <td>TRUE</td>
+                        <td>db installation in server room</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td>Gutter / general clean ups</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>PETER MAWERE</td>
+                        <td>TRUE</td>
+                        <td>db installation in server room</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td>APPLIANCE STAND</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>SAVIOUR PHIRI</td>
+                        <td>TRUE</td>
+                        <td>75" tv installation</td>
+                        <td>FREEDOM WAY</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>MICHEAL LOBELA</td>
+                        <td>TRUE</td>
+                        <td>general clean ups</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>TEMBEYA SAKALA</td>
+                        <td>TRUE</td>
+                        <td>75" tv installation</td>
+                        <td>NORTHMEAD FLATS 1</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>DOMINIC SAKALA</td>
+                        <td>TRUE</td>
+                        <td>installing metal sheet</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>CLISHA MAMBILIMA</td>
+                        <td>FALSE</td>
+                        <td>building -02</td>
+                        <td>HAZIDA LIMITED</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>KELVIN SIAME</td>
+                        <td>TRUE</td>
+                        <td>building -01</td>
+                        <td>FARM</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="column" id="eveningReport">
+            <h2>Evening Report</h2>
+            <table contenteditable="true">
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>TASK DESCRIPTION</th>
+                        <th>HOURS WORKED</th>
+                        <th>REMARKS</th>
+                        <th>TASK COMPLETED</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BRIGHTON MATOLOKOSH</td>
+                        <td>building base</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td>Camera reposition</td>
+                    </tr>
+                    <tr>
+                        <td>DABSON DAKA</td>
+                        <td>building base</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>DANNY MVULA</td>
+                        <td>building</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>JAMES DAKA</td>
+                        <td>building</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>JOSEPH TEMBO</td>
+                        <td>general plumbing</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>LUCKSON PHIRI</td>
+                        <td>tap leakage</td>
+                        <td>8</td>
+                        <td>completed</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>CAPHAS TEMBO</td>
+                        <td>Garden maintenance</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>OBERT SIAME</td>
+                        <td>camera installation / aircon generator to zesco</td>
+                        <td>8</td>
+                        <td>completed</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>PETER MAWERE</td>
+                        <td>camera installation</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>SAVIOUR PHIRI</td>
+                        <td>Assembling / centro mall drawers</td>
+                        <td>6</td>
+                        <td>completed</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>MICHEAL LOBELA</td>
+                        <td>Clean ups / gutter leakage</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>TEMBEYA SAKALA</td>
+                        <td>Clean ups / gutter leakage</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>DOMINIC SAKALA</td>
+                        <td>solar pole</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>CLISHA MAMBILIMA</td>
+                        <td>Clean ups</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>KELVIN SIAME</td>
+                        <td>Clean ups</td>
+                        <td>8</td>
+                        <td>ongoing</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="buttons">
+        <button id="downloadMorningPdf">Download Morning PDF</button>
+        <button id="downloadEveningPdf">Download Evening PDF</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        document.getElementById('downloadMorningPdf').addEventListener('click', function () {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const morningReport = document.getElementById('morningReport');
+
+            html2canvas(morningReport).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save('morning_report.pdf');
+            });
+        });
+
+        document.getElementById('downloadEveningPdf').addEventListener('click', function () {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const eveningReport = document.getElementById('eveningReport');
+
+            html2canvas(eveningReport).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save('evening_report.pdf');
+            });
+        });
+    </script>
+</body>
+</html>

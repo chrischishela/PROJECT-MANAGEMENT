@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Minutes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: #f1f9ff;
+        }
+
+        .form-container {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle-button {
+            margin-bottom: 20px;
+            font-size: 16px;
+            display: inline-block;
+            background-color: #28a745;
+        }
+
+        .toggle-button:hover {
+            background-color: #218838;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        @media (max-width: 768px) {
+            table, .form-container {
+                font-size: 14px;
+            }
+
+            input, button, textarea {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <!-- Add Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Get elements from the DOM
+        const formContainer = document.getElementById('formContainer');
+        const minutesForm = document.getElementById('minutesForm');
+        const minutesTableBody = document.getElementById('minutesTableBody');
+
+        // Load minutes from Firebase
+        function loadMinutes() {
+            const minutesRef = ref(db, 'minutes/');
+            onValue(minutesRef, (snapshot) => {
+                const data = snapshot.val();
+                const minutes = data ? Object.entries(data) : [];
+                updateTable(minutes);
+            });
+        }
+
+        // Save minutes to Firebase
+        function saveMinutes(minute) {
+            const minutesRef = ref(db, 'minutes/');
+            const newMinuteRef = push(minutesRef);
+            set(newMinuteRef, minute).then(() => {
+                console.log("Minute saved to Firebase:", minute);
+            }).catch((error) => {
+                console.error("Error saving minute to Firebase:", error);
+            });
+        }
+
+        // Remove minutes from Firebase
+        function deleteMinutes(minuteId) {
+            const minuteRef = ref(db, `minutes/${minuteId}`);
+            remove(minuteRef).then(() => {
+                console.log("Minute removed from Firebase:", minuteId);
+            }).catch((error) => {
+                console.error("Error removing minute from Firebase:", error);
+            });
+        }
+
+        // Toggle the form visibility
+        function toggleForm() {
+            formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Handle form submission
+        function addMinutes(event) {
+            event.preventDefault();
+
+            const meetingTopic = document.getElementById('meetingTopic').value;
+            const meetingDate = document.getElementById('meetingDate').value;
+            const notes = document.getElementById('notes').value;
+
+            if (meetingTopic && meetingDate && notes) {
+                const minute = {
+                    topic: meetingTopic,
+                    date: meetingDate,
+                    notes: notes
+                };
+
+                saveMinutes(minute);
+                minutesForm.reset();
+                formContainer.style.display = 'none';
+            } else {
+                alert('Please fill out all fields.');
+            }
+        }
+
+        // Delete minutes
+        function deleteMinutesRow(minuteId, row) {
+            deleteMinutes(minuteId);
+            row.remove();
+        }
+
+        // Update the table with minutes
+        function updateTable(minutes) {
+            minutesTableBody.innerHTML = ''; // Clear the table
+
+            minutes.forEach(([minuteId, minute]) => {
+                const row = minutesTableBody.insertRow();
+                row.insertCell(0).innerText = minute.topic;
+                row.insertCell(1).innerText = minute.date;
+                row.insertCell(2).innerText = minute.notes;
+
+                const actionCell = row.insertCell(3);
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete';
+                deleteButton.style.marginLeft = '10px';
+                deleteButton.onclick = () => deleteMinutesRow(minuteId, row);
+                actionCell.appendChild(deleteButton);
+            });
+        }
+
+        // Initial load of minutes from Firebase
+        loadMinutes();
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Meeting Minutes</h1>
+
+        <button class="toggle-button" onclick="toggleForm()">Add Meeting Minutes</button>
+
+        <div class="form-container" id="formContainer">
+            <form id="minutesForm" onsubmit="addMinutes(event)">
+                <label for="meetingTopic">Meeting Topic:</label>
+                <input type="text" id="meetingTopic" placeholder="Enter meeting topic" required>
+
+                <label for="meetingDate">Date:</label>
+                <input type="date" id="meetingDate" required>
+
+                <label for="notes">Notes:</label>
+                <textarea id="notes" placeholder="Enter meeting notes" rows="4" required></textarea>
+
+                <button type="submit">Add Minutes</button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Meeting Topic</th>
+                    <th>Date</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="minutesTableBody">
+                <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
