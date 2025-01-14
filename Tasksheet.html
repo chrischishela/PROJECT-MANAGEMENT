@@ -217,7 +217,6 @@
         ];
 
         let tasks = [];
-        let taskKeys = [];
 
         // Load tasks from Firebase
         function loadTasks() {
@@ -225,12 +224,9 @@
             onValue(tasksRef, (snapshot) => {
                 const data = snapshot.val();
                 tasks = [];
-                taskKeys = [];
                 for (const key in data) {
                     tasks.push({ key, ...data[key] });
-                    taskKeys.push(key);
                 }
-                console.log("Tasks loaded from Firebase:", tasks); // Debugging
                 updateTable();
                 storeActiveTasks(); // Store active tasks in localStorage
             });
@@ -354,7 +350,6 @@
                     dropdown.classList.add('dropdown');
                     const dropdownButton = document.createElement('button');
                     dropdownButton.textContent = 'Action';
-                    dropdownButton.classList.add('button');
                     const dropdownContent = document.createElement('div');
                     dropdownContent.classList.add('dropdown-content');
 
@@ -395,8 +390,7 @@
 
         // Show all tasks when "All Tasks" button is clicked
         viewAllBtn.addEventListener('click', () => {
-            const activeTasks = tasks.filter(task => task.status !== 'Completed');
-            updateTable(activeTasks);
+            updateTable(tasks);
         });
 
         // Show only completed tasks when the "Completed Tasks" button is clicked
