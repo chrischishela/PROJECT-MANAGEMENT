@@ -23,6 +23,12 @@
             height: 100%;
             padding-top: 20px;
             transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar img { 
+            max-width: 100%;
+            height: auto;
         }
 
         .sidebar.closed {
@@ -221,7 +227,7 @@
             }
 
             .main-content.shifted {
-                margin-left: 250px;
+                margin-left: 0;
             }
 
             .header {
@@ -250,7 +256,7 @@
 </head>
 
 <body>
-    <div class="sidebar closed">
+    <div class="sidebar">
         <h2><img src="Photos/logo.png" alt="Logo"></h2>
         <ul>
             <li><a href="employee_task_manager.html"><i class="fas fa-users"></i> Staff</a></li>
@@ -265,10 +271,9 @@
         </ul>
     </div>
 
-    <div class="main-content shifted">
+    <div class="main-content">
         <div class="header">
             <h1>PENTA CONSTRUCTION</h1>
-            <button id="toggleSidebar" class="btn btn-outline-light btn-sm">Toggle Sidebar</button>
             <div style="display: flex; align-items: center;">
                 <div class="notification">
                     <i class="fas fa-bell" id="notificationIcon" style="cursor: pointer;"></i>
@@ -443,13 +448,6 @@
             const dropdownMenu = document.getElementById('dropdownMenu');
             dropdownMenu.classList.toggle('show');
             updateNotificationBadge();
-        });
-
-        document.getElementById('toggleSidebar').addEventListener('click', () => {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            sidebar.classList.toggle('closed');
-            mainContent.classList.toggle('shifted');
         });
     </script>
 </body>
