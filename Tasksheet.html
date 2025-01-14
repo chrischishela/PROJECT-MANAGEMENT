@@ -182,7 +182,7 @@
 
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
             authDomain: "project-management-a1c5e.firebaseapp.com",
             databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
             projectId: "project-management-a1c5e",
@@ -204,7 +204,6 @@
         const viewCompletedBtn = document.getElementById('viewCompletedBtn');
         const viewAllBtn = document.getElementById('viewAllBtn');
         const filterProjectDropdown = document.getElementById('filterProjectDropdown');
-        const deleteAllTasksBtn = document.getElementById('deleteAllTasksBtn');
 
         const projectNames = [
             "Hazida Limited", "Hazida Motors", "Hazida Foods", "Freight and Passengers", 
@@ -252,18 +251,6 @@
             });
         }
 
-        // Delete all tasks in Firebase
-        function deleteAllTasks() {
-            const tasksRef = ref(db, 'tasks/');
-            remove(tasksRef).then(() => {
-                console.log("All tasks deleted from Firebase."); // Debugging
-                tasks = [];
-                updateTable();
-            }).catch((error) => {
-                console.error("Error deleting all tasks from Firebase:", error); // Debugging
-            });
-        }
-
         // Debounce function to limit the rate at which a function can fire.
         function debounce(func, delay) {
             let debounceTimer;
@@ -288,12 +275,14 @@
         taskForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
+            const taskId = document.getElementById('taskId').value;
             const projectName = document.getElementById('projectName').value;
             const taskDescription = document.getElementById('taskDescription').value;
             const location = document.getElementById('location').value;
             const priority = document.getElementById('priority').value;
 
             const newTask = {
+                taskId,
                 projectName,
                 taskDescription,
                 location,
@@ -316,14 +305,15 @@
 
             filteredTasks.forEach((task) => {
                 const row = taskTable.insertRow();
-                row.insertCell(0).innerText = task.projectName;
-                row.insertCell(1).innerText = task.taskDescription;
-                row.insertCell(2).innerText = task.location;
-                row.insertCell(3).innerText = task.priority;
-                row.insertCell(4).innerText = task.status;
+                row.insertCell(0).innerText = task.taskId;
+                row.insertCell(1).innerText = task.projectName;
+                row.insertCell(2).innerText = task.taskDescription;
+                row.insertCell(3).innerText = task.location;
+                row.insertCell(4).innerText = task.priority;
+                row.insertCell(5).innerText = task.status;
 
                 // Assigned To column with text input
-                const assignedToCell = row.insertCell(5);
+                const assignedToCell = row.insertCell(6);
                 const assignedToInput = document.createElement('input');
                 assignedToInput.type = 'text';
                 assignedToInput.value = task.assignedTo || ''; // Set current value if exists
@@ -340,11 +330,11 @@
                 }
                 assignedToCell.appendChild(assignedToInput);
 
-                row.insertCell(6).innerText = task.startDate || 'N/A';
-                row.insertCell(7).innerText = task.endDate || 'N/A';
+                row.insertCell(7).innerText = task.startDate || 'N/A';
+                row.insertCell(8).innerText = task.endDate || 'N/A';
 
                 // Duration column with text input
-                const durationCell = row.insertCell(8);
+                const durationCell = row.insertCell(9);
                 const durationInput = document.createElement('input');
                 durationInput.type = 'text';
                 durationInput.value = task.duration || ''; // Set current value if exists
@@ -363,7 +353,7 @@
 
                 // Only add actions if the task is not completed
                 if (task.status !== 'Completed') {
-                    const actionsCell = row.insertCell(9);
+                    const actionsCell = row.insertCell(10);
                     const dropdown = document.createElement('div');
                     dropdown.classList.add('dropdown');
                     const dropdownButton = document.createElement('button');
@@ -443,9 +433,6 @@
             updateTable(filteredTasks);
         });
 
-        // Add event listener to delete all tasks button
-        deleteAllTasksBtn.addEventListener('click', deleteAllTasks);
-
         // Initial load of tasks from Firebase and populate filter dropdown
         loadTasks();
         populateFilterDropdown();
@@ -465,12 +452,12 @@
         <button id="viewAllBtn">All Tasks</button>
         <button id="addTaskBtn">Add Task</button>
         <button id="viewCompletedBtn">View Completed Tasks</button>
-        <button id="deleteAllTasksBtn">Delete All Tasks</button>
     </div>
 
     <table id="taskTable">
         <thead>
             <tr>
+                <th>Task ID</th>
                 <th>Project Name</th>
                 <th>Task Description</th>
                 <th>Location</th>
@@ -479,7 +466,7 @@
                 <th>Assigned To</th>
                 <th>Start Date</th>
                 <th>End Date</th>
-                <th>Duration</th> <!-- Added Duration column -->
+                <th>Duration</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -494,6 +481,9 @@
             <span class="close" id="closeModal">&times;</span>
             <h2>Add Task</h2>
             <form id="taskForm">
+                <label for="taskId">Task ID:</label>
+                <input type="text" id="taskId" required><br><br>
+
                 <label for="projectName">Project Name:</label>
                 <select id="projectName" required></select><br><br>
 
