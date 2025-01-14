@@ -24,12 +24,12 @@
         .button-container {
             margin: 20px;
             display: flex;
-            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .button-container button,
         .button-container select {
-            margin-right: 10px;
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
@@ -47,9 +47,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px auto;
-            display: block;
-            overflow-y: auto;
-            max-height: 400px;
+            overflow-x: auto;
         }
 
         th, td {
@@ -67,7 +65,7 @@
         }
 
         th, td {
-            min-width: 150px;
+            min-width: 120px;
         }
 
         tr:nth-child(even) {
@@ -87,10 +85,11 @@
 
         .modal-content {
             background-color: white;
-            margin: 15% auto;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 50%;
+            width: 90%;
+            max-width: 600px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -300,6 +299,7 @@
                 location,
                 priority,
                 assignedTo: '',  // Initially no resource assigned
+                duration: '',
                 status: 'Inactive',
                 startDate: '',
                 endDate: ''
@@ -343,9 +343,27 @@
                 row.insertCell(6).innerText = task.startDate || 'N/A';
                 row.insertCell(7).innerText = task.endDate || 'N/A';
 
+                // Duration column with text input
+                const durationCell = row.insertCell(8);
+                const durationInput = document.createElement('input');
+                durationInput.type = 'text';
+                durationInput.value = task.duration || ''; // Set current value if exists
+                durationInput.placeholder = 'Enter duration...';
+
+                // Lock input for completed tasks
+                if (task.status === 'Completed') {
+                    durationInput.disabled = true;
+                } else {
+                    durationInput.addEventListener('input', debounce((event) => {
+                        task.duration = event.target.value;
+                        updateTask(task, task.key);
+                    }, 500));
+                }
+                durationCell.appendChild(durationInput);
+
                 // Only add actions if the task is not completed
                 if (task.status !== 'Completed') {
-                    const actionsCell = row.insertCell(8);
+                    const actionsCell = row.insertCell(9);
                     const dropdown = document.createElement('div');
                     dropdown.classList.add('dropdown');
                     const dropdownButton = document.createElement('button');
@@ -390,7 +408,8 @@
 
         // Show all tasks when "All Tasks" button is clicked
         viewAllBtn.addEventListener('click', () => {
-            updateTable(tasks);
+            const activeTasks = tasks.filter(task => task.status !== 'Completed');
+            updateTable(activeTasks);
         });
 
         // Show only completed tasks when the "Completed Tasks" button is clicked
@@ -460,6 +479,7 @@
                 <th>Assigned To</th>
                 <th>Start Date</th>
                 <th>End Date</th>
+                <th>Duration</th> <!-- Added Duration column -->
                 <th>Actions</th>
             </tr>
         </thead>
