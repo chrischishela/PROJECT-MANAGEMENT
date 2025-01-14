@@ -20,6 +20,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         h1 {
@@ -42,6 +43,9 @@
         th {
             background-color: #007bff;
             color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
         input, button {
@@ -52,15 +56,17 @@
         }
 
         button {
-            background-color: #007bff;
+            background-color: #28a745; /* Green background */
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            padding: 5px 10px; /* Smaller padding */
+            font-size: 14px; /* Smaller font size */
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
         .form-row {
@@ -120,6 +126,15 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        .button-container {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
     </style>
 </head>
 
@@ -127,8 +142,12 @@
     <div class="container">
         <h1>Inventory Consumables</h1>
 
-        <!-- Button to toggle inventory form -->
-        <button id="toggleInventoryFormButton" class="toggle-button">Hide Form</button>
+        <!-- Button container to hold the buttons at the right corner -->
+        <div class="button-container">
+            <button id="toggleInventoryFormButton" class="toggle-button">Hide Form</button>
+            <button id="toggleDeleteButtonsButton" class="toggle-button">Show Delete Buttons</button>
+            <button id="deleteSelectedButton" class="toggle-button" style="background-color: red; display: none;">Delete Selected Resources</button>
+        </div>
 
         <!-- Form to add new items -->
         <div id="inventoryFormContainer" class="form-section">
@@ -196,11 +215,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
             authDomain: "project-management-a1c5e.firebaseapp.com",
             databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
             projectId: "project-management-a1c5e",
@@ -239,7 +258,10 @@
                         newRow.insertCell(2).textContent = item.stockAvailable;
                         newRow.insertCell(3).textContent = item.price;
                         newRow.insertCell(4).textContent = item.requested || 0;
-                        newRow.insertCell(5).innerHTML = `<button class="history-button" onclick="viewItemHistory('${item.binId}')">View Item History</button>`;
+                        newRow.insertCell(5).innerHTML = `
+                            <button class="history-button" onclick="viewItemHistory('${item.binId}')">View Item History</button>
+                            <button class="delete-button" onclick="selectItemForDeletion('${key}')">Delete</button>
+                        `;
                     });
                 }
             });
@@ -248,30 +270,36 @@
         // Save inventory data to Firebase
         function saveInventory(item) {
             const inventoryRef = ref(db, "inventory/");
-            onValue(inventoryRef, (snapshot) => {
-                const data = snapshot.val();
-                let itemKey = null;
-                if (data) {
-                    Object.keys(data).forEach((key) => {
-                        if (data[key].binId === item.binId && data[key].name === item.name) {
-                            itemKey = key;
-                        }
-                    });
-                }
+            const newItemRef = push(inventoryRef);
+            set(newItemRef, item);
+            logHistory("Add", `Added new item ${item.name} to bin ${item.binId} with stock ${item.stockAvailable} and price ${item.price}.`);
+        }
 
-                if (itemKey) {
-                    const itemRef = ref(db, `inventory/${itemKey}`);
-                    update(itemRef, {
-                        stockAvailable: data[itemKey].stockAvailable + item.stockAvailable,
-                        price: item.price
-                    });
-                    logHistory("Update", `Updated item ${item.name} in bin ${item.binId}, added ${item.stockAvailable} to stock.`);
-                } else {
-                    const newItemRef = push(inventoryRef);
-                    set(newItemRef, item);
-                    logHistory("Add", `Added new item ${item.name} to bin ${item.binId} with stock ${item.stockAvailable} and price ${item.price}.`);
-                }
-            }, { onlyOnce: true });
+        // Select item for deletion
+        function selectItemForDeletion(itemKey) {
+            const deleteButton = document.querySelector(`button[onclick="selectItemForDeletion('${itemKey}')"]`);
+            deleteButton.classList.toggle('selected');
+        }
+
+        // Delete selected items
+        function deleteSelectedItems() {
+            const selectedButtons = document.querySelectorAll('.delete-button.selected');
+            selectedButtons.forEach(button => {
+                const itemKey = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                deleteItem(itemKey);
+            });
+        }
+
+        // Delete inventory item from Firebase
+        function deleteItem(itemKey) {
+            const itemRef = ref(db, `inventory/${itemKey}`);
+            remove(itemRef).then(() => {
+                logHistory("Delete", `Deleted item with key ${itemKey}.`);
+                loadInventory(); // Refresh the table
+                console.log("Item deleted from Firebase"); // Debugging
+            }).catch((error) => {
+                console.error("Error deleting item from Firebase:", error); // Debugging
+            });
         }
 
         // View Item History
@@ -342,21 +370,37 @@
             }
         });
 
+        // Toggle delete buttons visibility
+        toggleDeleteButtonsButton.addEventListener('click', function() {
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.style.display = button.style.display === 'none' ? 'inline-block' : 'none';
+            });
+            toggleDeleteButtonsButton.innerText = toggleDeleteButtonsButton.innerText === 'Show Delete Buttons' ? 'Hide Delete Buttons' : 'Show Delete Buttons';
+            document.getElementById('deleteSelectedButton').style.display = deleteButtons[0].style.display === 'none' ? 'none' : 'inline-block';
+        });
+
+        // Delete selected resources
+        deleteSelectedButton.addEventListener('click', function() {
+            deleteSelectedItems();
+        });
+
         // Load initial inventory data
         window.onload = function() {
             loadInventory();
         };
 
         // Close the modal when the user clicks on <span> (x)
-        document.querySelector(".close").onclick = function() {
-            document.getElementById("historyModal").style.display = "none";
-        };
+        document.querySelectorAll(".close").forEach(closeButton => {
+            closeButton.onclick = function() {
+                closeButton.closest('.modal').style.display = "none";
+            };
+        });
 
         // Close the modal when the user clicks anywhere outside of the modal
         window.onclick = function(event) {
-            const historyModal = document.getElementById("historyModal");
-            if (event.target == historyModal) {
-                historyModal.style.display = "none";
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
             }
         };
     </script>
