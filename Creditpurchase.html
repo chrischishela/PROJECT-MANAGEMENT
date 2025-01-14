@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Purchase List with Firebase</title>
+    <title>Account Overview Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,10 +15,11 @@
         }
 
         .container {
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
+            max-width: 1200px;
+            margin: 40px auto;
             background: #fff;
+            padding: 20px;
+            border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
@@ -26,180 +28,180 @@
             color: #007bff;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .overview {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             margin-top: 20px;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
+        .card {
+            background: #f1f1f1;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+            flex: 1 1 calc(25% - 20px);
+            box-sizing: border-box;
             text-align: center;
         }
 
-        th {
-            background-color: #007bff;
-            color: #fff;
+        .card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
         }
 
-        input, select, button {
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            box-sizing: border-box;
+        .card p {
+            color: #666;
+            margin: 10px 0;
         }
 
-        button {
+        .card a {
+            text-decoration: none;
+        }
+
+        .card button {
             background-color: #007bff;
             color: #fff;
             border: none;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
-        button:hover {
+        .card button:hover {
             background-color: #0056b3;
         }
 
-        .form-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .form-row > div {
-            flex: 1;
-        }
-
-        .form-section {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #f1f1f1;
-        }
-
-        .toggle-button {
-            margin: 10px 0;
-            background-color: #17a2b8;
-        }
-
-        .paid {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .unpaid, .paid-section {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .section-title {
-            text-align: center;
+        .card i {
+            font-size: 40px;
             color: #007bff;
+            margin-bottom: 15px;
         }
 
-        .paid-section {
-            display: none;
+        .summary-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-around;
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .summary-card {
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 30%;
+        }
+
+        .summary-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            color: #007bff;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .card, .summary-card {
+                flex: 1 1 100%;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Credit Purchase List</h1>
+        <h1>Account Overview Dashboard</h1>
+        <div class="overview">
+            <!-- Task Expenses Card -->
+            <div class="card">
+                <i class="fas fa-tasks"></i>
+                <h2>Task Expenses</h2>
+                <p>View and manage expenses related to different tasks.</p>
+                <a href="Taskexpens.html"><button>Open</button></a>
+            </div>
 
-        <!-- Button to toggle form visibility -->
-        <button id="toggleFormButton" class="toggle-button">Hide Form</button>
+            <!-- Inventory Pricing Card -->
+            <div class="card">
+                <i class="fas fa-boxes"></i>
+                <h2>Credit purchases</h2>
+                <p>Check and update the pricing of inventory items.</p>
+                <a href="Creditpurchase.html"><button>Open</button></a>
+            </div>
 
-        <!-- Form to add new credit purchase -->
-        <div id="creditPurchaseFormContainer" class="form-section">
-            <form id="creditPurchaseForm">
-                <div class="form-row">
-                    <div>
-                        <label for="date">Date:</label>
-                        <input type="date" id="date" required>
-                    </div>
-                    <div>
-                        <label for="supplier">Supplier:</label>
-                        <input type="text" id="supplier" required>
-                    </div>
-                    <div>
-                        <label for="invoiceNumber">Invoice Number:</label>
-                        <input type="text" id="invoiceNumber" required>
-                    </div>
-                    <div>
-                        <label for="amount">Amount:</label>
-                        <input type="number" id="amount" required>
-                    </div>
-                    <div>
-                        <label for="payee">Payee:</label>
-                        <select id="payee" required>
-                            <option value="">Select Payee</option>
-                            <option value="Freight and passengers limited">Freight and passengers limited</option>
-                            <option value="Hazida motors limited">Hazida motors limited</option>
-                            <option value="Hazidda Limited">Hazidda Limited</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit">Add Purchase</button>
-            </form>
+            <!-- Purchases Sheet Card -->
+            <div class="card">
+                <i class="fas fa-shopping-cart"></i>
+                <h2>Purchases Sheet</h2>
+                <p>Track all purchases made and view purchase history.</p>
+                <a href="purchases.html"><button>Open</button></a>
+            </div>
+
+            <!-- Airtel Money Transactions Card -->
+            <div class="card">
+                <i class="fas fa-money-bill-wave"></i>
+                <h2>Airtel Money Transactions</h2>
+                <p>Manage and track Airtel Money transactions.</p>
+                <a href="Airtelmoney.html"><button>Open</button></a>
+            </div>
         </div>
 
-        <!-- Section for unpaid invoices -->
-        <div class="unpaid">
-            <h2 class="section-title">Unpaid Invoices</h2>
-            <table id="unpaidTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Supplier</th>
-                        <th>Invoice Number</th>
-                        <th>Amount</th>
-                        <th>Payee</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="unpaidTableBody">
-                    <!-- Unpaid rows will be added dynamically here -->
-                </tbody>
-            </table>
-        </div>
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <!-- Total Transactions Card -->
+            <div class="summary-card">
+                <h3>Total Transactions</h3>
+                <p id="total-transactions">0</p>
+            </div>
 
-        <!-- Section for paid invoices -->
-        <div class="paid-section" id="paidSection">
-            <h2 class="section-title">Paid Invoices</h2>
-            <table id="paidTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Supplier</th>
-                        <th>Invoice Number</th>
-                        <th>Amount</th>
-                        <th>Payee</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="paidTableBody">
-                    <!-- Paid rows will be added dynamically here -->
-                </tbody>
-            </table>
-        </div>
+            <!-- Average Transaction Amount Card -->
+            <div class="summary-card">
+                <h3>Average Transaction Amount</h3>
+                <p id="average-amount">K0.00</p>
+            </div>
 
-        <!-- Button to toggle paid invoices visibility -->
-        <button id="togglePaidButton" class="toggle-button" style="margin-top: 20px;">View Paid Invoices</button>
+            <!-- Highest Transaction Amount Card -->
+            <div class="summary-card">
+                <h3>Highest Transaction Amount</h3>
+                <p id="highest-amount">K0.00</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-    <!-- Firebase Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
-    <!-- Your JavaScript file -->
-    <script src="app.js"></script>
+    <script>
+        // Example data (replace with your actual data)
+        const transactions = [
+            { amount: 1000 }, // amount in Kwacha
+            { amount: 2000 },
+            { amount: 4000 },
+            { amount: 3000 }
+        ];
+
+        // Function to update the summary section
+        function updateSummary() {
+            const totalTransactions = transactions.length;
+            const totalAmount = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+            const averageAmount = (totalAmount / totalTransactions).toFixed(2);
+            const highestAmount = Math.max(...transactions.map(transaction => transaction.amount)).toFixed(2);
+
+            document.getElementById('total-transactions').innerText = totalTransactions;
+            document.getElementById('average-amount').innerText = `K${averageAmount}`;
+            document.getElementById('highest-amount').innerText = `K${highestAmount}`;
+        }
+
+        // Call the updateSummary function to initialize the summary section
+        updateSummary();
+    </script>
 </body>
 
 </html>
