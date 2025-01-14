@@ -205,6 +205,7 @@
         const viewCompletedBtn = document.getElementById('viewCompletedBtn');
         const viewAllBtn = document.getElementById('viewAllBtn');
         const filterProjectDropdown = document.getElementById('filterProjectDropdown');
+        const deleteAllTasksBtn = document.getElementById('deleteAllTasksBtn');
 
         const projectNames = [
             "Hazida Limited", "Hazida Motors", "Hazida Foods", "Freight and Passengers", 
@@ -216,13 +217,19 @@
         ];
 
         let tasks = [];
+        let taskKeys = [];
 
         // Load tasks from Firebase
         function loadTasks() {
             const tasksRef = ref(db, 'tasks/');
             onValue(tasksRef, (snapshot) => {
                 const data = snapshot.val();
-                tasks = data ? Object.values(data) : [];
+                tasks = [];
+                taskKeys = [];
+                for (const key in data) {
+                    tasks.push({ key, ...data[key] });
+                    taskKeys.push(key);
+                }
                 console.log("Tasks loaded from Firebase:", tasks); // Debugging
                 updateTable();
             });
@@ -247,6 +254,29 @@
             }).catch((error) => {
                 console.error("Error updating task in Firebase:", error); // Debugging
             });
+        }
+
+        // Delete all tasks in Firebase
+        function deleteAllTasks() {
+            const tasksRef = ref(db, 'tasks/');
+            remove(tasksRef).then(() => {
+                console.log("All tasks deleted from Firebase."); // Debugging
+                tasks = [];
+                updateTable();
+            }).catch((error) => {
+                console.error("Error deleting all tasks from Firebase:", error); // Debugging
+            });
+        }
+
+        // Debounce function to limit the rate at which a function can fire.
+        function debounce(func, delay) {
+            let debounceTimer;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(context, args), delay);
+            };
         }
 
         // Event listeners for adding tasks and closing the modal
@@ -287,7 +317,7 @@
         function updateTable(filteredTasks = tasks) {
             taskTable.innerHTML = ''; // Clear the table
 
-            filteredTasks.forEach((task, index) => {
+            filteredTasks.forEach((task) => {
                 const row = taskTable.insertRow();
                 row.insertCell(0).innerText = task.projectName;
                 row.insertCell(1).innerText = task.taskDescription;
@@ -306,10 +336,10 @@
                 if (task.status === 'Completed') {
                     assignedToInput.disabled = true;
                 } else {
-                    assignedToInput.addEventListener('input', (event) => {
+                    assignedToInput.addEventListener('input', debounce((event) => {
                         task.assignedTo = event.target.value;
-                        updateTask(task, index);
-                    });
+                        updateTask(task, task.key);
+                    }, 500));
                 }
                 assignedToCell.appendChild(assignedToInput);
 
@@ -332,7 +362,7 @@
                     startButton.addEventListener('click', () => {
                         task.startDate = new Date().toLocaleDateString();
                         task.status = 'Active';
-                        updateTask(task, index);
+                        updateTask(task, task.key);
                         updateTable();
                     });
 
@@ -341,7 +371,7 @@
                     completeButton.addEventListener('click', () => {
                         task.endDate = new Date().toLocaleDateString();
                         task.status = 'Completed';
-                        updateTask(task, index);
+                        updateTask(task, task.key);
                         updateTable();
                     });
 
@@ -391,6 +421,9 @@
             updateTable(filteredTasks);
         });
 
+        // Add event listener to delete all tasks button
+        deleteAllTasksBtn.addEventListener('click', deleteAllTasks);
+
         // Initial load of tasks from Firebase and populate filter dropdown
         loadTasks();
         populateFilterDropdown();
@@ -410,6 +443,7 @@
         <button id="viewAllBtn">All Tasks</button>
         <button id="addTaskBtn">Add Task</button>
         <button id="viewCompletedBtn">View Completed Tasks</button>
+        <button id="deleteAllTasksBtn">Delete All Tasks</button>
     </div>
 
     <table id="taskTable">
