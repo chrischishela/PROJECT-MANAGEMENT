@@ -172,22 +172,22 @@
         async function addNewEmployees() {
             const employeesRef = ref(db, "employees/");
             const newEmployees = [
-                { staffId: 1, name: "Christopher", surname: "Chishela", position: "Project Inventory Manager" },
-                { staffId: 2, name: "Brighton", surname: "Matolokosh", position: "Painter" },
-                { staffId: 3, name: "Caphas", surname: "Tembo", position: "General" },
-                { staffId: 4, name: "Clisha", surname: "Mwambila", position: "General" },
-                { staffId: 5, name: "Dabson", surname: "Daka", position: "Builder" },
-                { staffId: 6, name: "Danny", surname: "Mvula", position: "Builder" },
-                { staffId: 7, name: "James", surname: "Daka", position: "Builder" },
-                { staffId: 8, name: "Joseph", surname: "Tembo", position: "Plumber" },
-                { staffId: 9, name: "Luckson", surname: "Phiri", position: "General" },
-                { staffId: 10, name: "Micheal", surname: "Lobela", position: "Carpenter" },
-                { staffId: 11, name: "Obert", surname: "Siame", position: "Electrician" },
-                { staffId: 12, name: "Dominic", surname: "Sakala", position: "Welder" },
-                { staffId: 13, name: "Peter", surname: "Mawere", position: "Assistant Electrician" },
-                { staffId: 14, name: "Saviour", surname: "Phiri", position: "Carpenter" },
-                { staffId: 15, name: "Tembeya", surname: "Sakala", position: "Welder" },
-                { staffId: 16, name: "Kelvin", surname: "Siame", position: "General" }
+                { staffId: 1, name: "Christopher", surname: "Chishela", position: "Project Inventory Manager", status: "Unassigned" },
+                { staffId: 2, name: "Brighton", surname: "Matolokosh", position: "Painter", status: "Assigned" },
+                { staffId: 3, name: "Caphas", surname: "Tembo", position: "General", status: "Unassigned" },
+                { staffId: 4, name: "Clisha", surname: "Mwambila", position: "General", status: "Assigned" },
+                { staffId: 5, name: "Dabson", surname: "Daka", position: "Builder", status: "Unassigned" },
+                { staffId: 6, name: "Danny", surname: "Mvula", position: "Builder", status: "Assigned" },
+                { staffId: 7, name: "James", surname: "Daka", position: "Builder", status: "Assigned" },
+                { staffId: 8, name: "Joseph", surname: "Tembo", position: "Plumber", status: "Assigned" },
+                { staffId: 9, name: "Luckson", surname: "Phiri", position: "General", status: "Unassigned" },
+                { staffId: 10, name: "Micheal", surname: "Lobela", position: "Carpenter", status: "Assigned" },
+                { staffId: 11, name: "Obert", surname: "Siame", position: "Electrician", status: "Assigned" },
+                { staffId: 12, name: "Dominic", surname: "Sakala", position: "Welder", status: "Assigned" },
+                { staffId: 13, name: "Peter", surname: "Mawere", position: "Assistant Electrician", status: "Unassigned" },
+                { staffId: 14, name: "Saviour", surname: "Phiri", position: "Carpenter", status: "Assigned" },
+                { staffId: 15, name: "Tembeya", surname: "Sakala", position: "Welder", status: "Assigned" },
+                { staffId: 16, name: "Kelvin", surname: "Siame", position: "General", status: "Unassigned" }
             ];
 
             newEmployees.forEach(employee => {
@@ -280,11 +280,32 @@
             }
         }
 
+        // Function to get unassigned employees
+        function getUnassignedEmployees() {
+            const employeesRef = ref(db, "employees/");
+            onValue(employeesRef, (snapshot) => {
+                const data = snapshot.val();
+                const unassignedEmployees = [];
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        const employee = data[key];
+                        if (employee.status === 'Unassigned') {
+                            unassignedEmployees.push({ name: employee.name, surname: employee.surname, position: employee.position });
+                        }
+                    });
+                }
+                localStorage.setItem('unassignedEmployees', JSON.stringify(unassignedEmployees));
+            });
+        }
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async () => {
             await clearEmployees();
             await addNewEmployees();
             loadEmployees();
+
+            // Fetch unassigned employees and store in localStorage
+            getUnassignedEmployees();
         });
     </script>
 </head>
