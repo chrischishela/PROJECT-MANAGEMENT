@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Purchase List with Firebase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        input, select, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        .form-section {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+        }
+
+        .toggle-button {
+            margin: 10px 0;
+            background-color: #17a2b8;
+        }
+
+        .paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .unpaid, .paid-section {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .section-title {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .paid-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Credit Purchase List</h1>
+
+        <!-- Button to toggle form visibility -->
+        <button id="toggleFormButton" class="toggle-button">Hide Form</button>
+
+        <!-- Form to add new credit purchase -->
+        <div id="creditPurchaseFormContainer" class="form-section">
+            <form id="creditPurchaseForm">
+                <div class="form-row">
+                    <div>
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div>
+                        <label for="supplier">Supplier:</label>
+                        <input type="text" id="supplier" required>
+                    </div>
+                    <div>
+                        <label for="invoiceNumber">Invoice Number:</label>
+                        <input type="text" id="invoiceNumber" required>
+                    </div>
+                    <div>
+                        <label for="amount">Amount:</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                    <div>
+                        <label for="payee">Payee:</label>
+                        <select id="payee" required>
+                            <option value="">Select Payee</option>
+                            <option value="Freight and passengers limited">Freight and passengers limited</option>
+                            <option value="Hazida motors limited">Hazida motors limited</option>
+                            <option value="Hazidda Limited">Hazidda Limited</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">Add Purchase</button>
+            </form>
+        </div>
+
+        <!-- Section for unpaid invoices -->
+        <div class="unpaid">
+            <h2 class="section-title">Unpaid Invoices</h2>
+            <table id="unpaidTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Invoice Number</th>
+                        <th>Amount</th>
+                        <th>Payee</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="unpaidTableBody">
+                    <!-- Unpaid rows will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section for paid invoices -->
+        <div class="paid-section" id="paidSection">
+            <h2 class="section-title">Paid Invoices</h2>
+            <table id="paidTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Invoice Number</th>
+                        <th>Amount</th>
+                        <th>Payee</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="paidTableBody">
+                    <!-- Paid rows will be added dynamically here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Button to toggle paid invoices visibility -->
+        <button id="togglePaidButton" class="toggle-button" style="margin-top: 20px;">View Paid Invoices</button>
+    </div>
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <!-- Firebase Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
+    <!-- Your JavaScript file -->
+    <script src="app.js"></script>
+</body>
+
+</html>
