@@ -232,6 +232,7 @@
                 }
                 console.log("Tasks loaded from Firebase:", tasks); // Debugging
                 updateTable();
+                storeActiveTasks(); // Store active tasks in localStorage
             });
         }
 
@@ -364,6 +365,7 @@
                         task.status = 'Active';
                         updateTask(task, task.key);
                         updateTable();
+                        storeActiveTasks(); // Update active tasks in localStorage
                     });
 
                     const completeButton = document.createElement('button');
@@ -373,6 +375,7 @@
                         task.status = 'Completed';
                         updateTask(task, task.key);
                         updateTable();
+                        storeActiveTasks(); // Update active tasks in localStorage
                     });
 
                     dropdownContent.appendChild(startButton);
@@ -382,6 +385,12 @@
                     actionsCell.appendChild(dropdown);
                 }
             });
+        }
+
+        // Store active tasks in localStorage
+        function storeActiveTasks() {
+            const activeTasks = tasks.filter(task => task.status === 'Active');
+            localStorage.setItem('activeTasks', JSON.stringify(activeTasks));
         }
 
         // Show all tasks when "All Tasks" button is clicked
