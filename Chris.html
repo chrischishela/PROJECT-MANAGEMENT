@@ -34,9 +34,6 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
         }
 
         th,
@@ -50,6 +47,9 @@
             background-color: #007bff;
             color: white;
             text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
         tr:hover {
@@ -149,7 +149,7 @@
 
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
             authDomain: "project-management-a1c5e.firebaseapp.com",
             databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
             projectId: "project-management-a1c5e",
@@ -315,7 +315,7 @@
 
 <body>
     <div class="container">
-        <h1>Chris To-DO</h1>
+        <h1>Chris To-Do</h1>
 
         <button class="toggle-button">Add Task Form</button>
 
