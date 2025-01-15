@@ -24,6 +24,7 @@
             padding-top: 20px;
             transition: transform 0.3s ease;
             z-index: 1000;
+            transform: translateX(0);
         }
 
         .sidebar img {
@@ -147,6 +148,12 @@
             background-color: #f1f1f1;
         }
 
+        .header .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
         .cards {
             display: flex;
             justify-content: space-between;
@@ -214,7 +221,7 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative;
+                position: absolute;
                 transform: translateX(-100%);
             }
 
@@ -241,6 +248,10 @@
 
             .header .notification i {
                 font-size: 20px;
+            }
+
+            .header .menu-toggle {
+                display: block;
             }
 
             .cards {
@@ -280,6 +291,9 @@
     <div class="main-content">
         <div class="header">
             <h1>PENTA CONSTRUCTION</h1>
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
             <div style="display: flex; align-items: center;">
                 <div class="notification">
                     <i class="fas fa-bell" id="notificationIcon" style="cursor: pointer;"></i>
@@ -454,6 +468,12 @@
             const dropdownMenu = document.getElementById('dropdownMenu');
             dropdownMenu.classList.toggle('show');
             updateNotificationBadge();
+        });
+
+        // Toggle sidebar visibility on mobile
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('closed');
         });
     </script>
 </body>
