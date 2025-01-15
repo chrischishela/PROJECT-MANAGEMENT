@@ -193,7 +193,6 @@ th {
                     <th>LABOR COST</th>
                     <th>PERSONNEL</th>
                     <th>TOTAL</th>
-                    <th>ACTION</th>
                 </tr>
             </thead>
             <tbody id="expenseTable">
@@ -306,15 +305,6 @@ th {
                         newRow.insertCell(10).innerText = expense.laborCost.toFixed(2);
                         newRow.insertCell(11).innerText = expense.personnel;
                         newRow.insertCell(12).innerText = expense.total.toFixed(2);
-
-                        const archiveButton = document.createElement('button');
-                        archiveButton.className = 'archive-button';
-                        archiveButton.innerText = 'Archive';
-                        archiveButton.onclick = function() {
-                            archiveTasksById(expense.taskId);
-                        };
-                        const actionCell = newRow.insertCell(13);
-                        actionCell.appendChild(archiveButton);
                     });
                 }
             });
@@ -377,15 +367,6 @@ th {
             newRow.insertCell(10).innerText = laborCost.toFixed(2);
             newRow.insertCell(11).innerText = personnel;
             newRow.insertCell(12).innerText = (total + laborCost).toFixed(2);
-
-            const archiveButton = document.createElement('button');
-            archiveButton.className = 'archive-button';
-            archiveButton.innerText = 'Archive';
-            archiveButton.onclick = function() {
-                archiveTasksById(taskId);
-            };
-            const actionCell = newRow.insertCell(13);
-            actionCell.appendChild(archiveButton);
 
             // Clear the form
             document.getElementById('addExpenseForm').reset();
@@ -461,7 +442,6 @@ th {
                 newRow.insertCell(2).innerText = task.projectName;
                 newRow.insertCell(3).innerText = task.resourceName;
                 newRow.insertCell(4).innerText = task.taskDescription;
-                newRow.insertCell(4).innerText = task.taskDescription;
                 newRow.insertCell(5).innerText = task.supplier;
                 newRow.insertCell(6).innerText = task.vat;
                 newRow.insertCell(7).innerText = task.payee;
@@ -473,6 +453,11 @@ th {
             });
 
             archivedContainer.style.display = 'block';
+        }
+
+        function viewMainTasks() {
+            document.getElementById('archivedContainer').style.display = 'none';
+            document.getElementById('archivedContainer').style.display = 'block';
         }
 
         function viewMainTasks() {
