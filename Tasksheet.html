@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -195,7 +194,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Get elements from the DOM
+        // Get DOM elements
         const addTaskBtn = document.getElementById('addTaskBtn');
         const taskModal = document.getElementById('taskModal');
         const closeModal = document.getElementById('closeModal');
@@ -540,7 +539,7 @@
                 <label for="taskDescription">Task Description:</label>
                 <input type="text" id="taskDescription" required><br><br>
 
-                <label for="location">Location:</label>
+               <label for="location">Location:</label>
                 <input type="text" id="location" required><br><br>
 
                 <label for="priority">Priority:</label>
