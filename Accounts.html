@@ -117,6 +117,55 @@
             }
         }
     </style>
+    <!-- Add Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Load transactions from Firebase
+        function loadTransactions() {
+            const transactionsRef = ref(db, 'transactions/');
+            onValue(transactionsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const transactions = Object.values(data);
+                    updateSummary(transactions);
+                } else {
+                    updateSummary([]);
+                }
+            });
+        }
+
+        // Function to update the summary section
+        function updateSummary(transactions) {
+            const totalTransactions = transactions.length;
+            const totalAmount = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+            const averageAmount = (totalAmount / totalTransactions).toFixed(2);
+            const highestAmount = Math.max(...transactions.map(transaction => transaction.amount)).toFixed(2);
+
+            document.getElementById('total-transactions').innerText = totalTransactions;
+            document.getElementById('average-amount').innerText = `K${averageAmount}`;
+            document.getElementById('highest-amount').innerText = `K${highestAmount}`;
+        }
+
+        // Call the loadTransactions function to initialize the summary section
+        loadTransactions();
+    </script>
 </head>
 
 <body>
@@ -131,12 +180,11 @@
                 <a href="Taskexpens.html"><button>Open</button></a>
             </div>
 
-            <!-- credit purchase Card -->
+            <!-- Credit Purchases Card -->
             <div class="card">
                 <i class="fas fa-boxes"></i>
                 <h2>Credit Purchases</h2>
                 <p>Check and update the pricing of inventory items.</p>
-                <!-- Ensure this file exists at the specified location -->
                 <a href="Creditpurchase.html"><button>Open</button></a>
             </div>
 
@@ -178,31 +226,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Example data (replace with your actual data)
-        const transactions = [
-            { amount: 1000 }, // amount in Kwacha
-            { amount: 2000 },
-            { amount: 4000 },
-            { amount: 3000 }
-        ];
-
-        // Function to update the summary section
-        function updateSummary() {
-            const totalTransactions = transactions.length;
-            const totalAmount = transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
-            const averageAmount = (totalAmount / totalTransactions).toFixed(2);
-            const highestAmount = Math.max(...transactions.map(transaction => transaction.amount)).toFixed(2);
-
-            document.getElementById('total-transactions').innerText = totalTransactions;
-            document.getElementById('average-amount').innerText = `K${averageAmount}`;
-            document.getElementById('highest-amount').innerText = `K${highestAmount}`;
-        }
-
-        // Call the updateSummary function to initialize the summary section
-        updateSummary();
-    </script>
 </body>
 
 </html>
