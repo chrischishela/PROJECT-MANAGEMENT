@@ -464,33 +464,33 @@ th {
 
             const newRow = archivedTasksTable.insertRow();
 
-    newRow.insertCell(0).innerText = task.date;
-    newRow.insertCell(1).innerText = task.taskId;
-    newRow.insertCell(2).innerText = task.projectName;
-    newRow.insertCell(3).innerText = task.resourceName;
-    newRow.insertCell(4).innerText = task.taskDescription;
-    newRow.insertCell(5).innerText = task.supplier;
-    newRow.insertCell(6).innerText = task.vat;
-    newRow.insertCell(7).innerText = task.payee;
-    newRow.insertCell(8).innerText = task.qty;
-    newRow.insertCell(9).innerText = task.amount;
-    newRow.insertCell(10).innerText = task.laborCost;
-    newRow.insertCell(11).innerText = task.personnel;
-    newRow.insertCell(12).innerText = task.total;
+newRow.insertCell(0).innerText = task.date;
+newRow.insertCell(1).innerText = task.taskId;
+newRow.insertCell(2).innerText = task.projectName;
+newRow.insertCell(3).innerText = task.resourceName;
+newRow.insertCell(4).innerText = task.taskDescription;
+newRow.insertCell(5).innerText = task.supplier;
+newRow.insertCell(6).innerText = task.vat;
+newRow.insertCell(7).innerText = task.payee;
+newRow.insertCell(8).innerText = task.qty;
+newRow.insertCell(9).innerText = task.amount;
+newRow.insertCell(10).innerText = task.laborCost;
+newRow.insertCell(11).innerText = task.personnel;
+newRow.insertCell(12).innerText = task.total;
 });
 
 archivedContainer.style.display = 'block';
 }
 
 function viewMainTasks() {
-    document.getElementById('archivedContainer').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'block';
+document.getElementById('archivedContainer').style.display = 'none';
+document.getElementById('mainContainer').style.display = 'block';
 }
 
 // Load resource names when the page loads
 window.onload = function() {
-    loadResourceNames();
-    loadExpenses(); // Load existing expenses from Firebase
+loadResourceNames();
+loadExpenses(); // Load existing expenses from Firebase
 };
 </script>
 </body>
