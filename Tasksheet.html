@@ -300,13 +300,21 @@
         taskForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
+            const taskId = document.getElementById('taskId').value;
             const projectName = document.getElementById('projectName').value;
             const taskDescription = document.getElementById('taskDescription').value;
             const location = document.getElementById('location').value;
             const priority = document.getElementById('priority').value;
 
+            // Check if taskId already exists
+            const taskExists = tasks.some(task => task.taskId === taskId);
+            if (taskExists) {
+                alert('Task ID already exists. Please enter a unique Task ID.');
+                return;
+            }
+
             const newTask = {
-                taskId: projectNames[projectName] + '0000', // Placeholder ID to be edited in the table
+                taskId,
                 projectName,
                 taskDescription,
                 location,
@@ -516,6 +524,9 @@
             <span class="close" id="closeModal">&times;</span>
             <h2>Add Task</h2>
             <form id="taskForm">
+                <label for="taskId">Task ID:</label>
+                <input type="text" id="taskId" required><br><br>
+
                 <label for="projectName">Project Name:</label>
                 <select id="projectName" required></select><br><br>
 
