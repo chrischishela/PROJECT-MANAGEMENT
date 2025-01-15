@@ -122,6 +122,207 @@
             display: none;
         }
     </style>
+    <!-- Add Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
+            authDomain: "project-management-a1c5e.firebaseapp.com",
+            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
+            projectId: "project-management-a1c5e",
+            storageBucket: "project-management-a1c5e.appspot.com",
+            messagingSenderId: "662718236281",
+            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Load transactions from Firebase
+        function loadTransactions() {
+            const transactionsRef = ref(db, 'transactions/');
+            onValue(transactionsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const transactions = Object.values(data);
+                    updateTable(transactions);
+                    updateTotalAmount(transactions);
+                } else {
+                    updateTable([]);
+                    updateTotalAmount([]);
+                }
+            });
+        }
+
+        // Function to update the total amount
+        function updateTotalAmount(transactions) {
+            const totalAmount = transactions.reduce((total, transaction) => total + transaction.amount, 0);
+            document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
+        }
+
+        // Function to add a new transaction to the table
+        function addTransactionToTable(transaction, tableId = 'transactionTable') {
+            const table = document.getElementById(tableId);
+            const newRow = table.insertRow();
+
+            newRow.insertCell(0).innerText = transaction.date;
+            newRow.insertCell(1).innerText = transaction.name;
+            newRow.insertCell(2).innerText = transaction.transactionDescription;
+            newRow.insertCell(3).innerText = transaction.location;
+            newRow.insertCell(4).innerText = transaction.purpose;
+            newRow.insertCell(5).innerText = transaction.amount.toFixed(2);
+
+            if (tableId === 'transactionTable') {
+                const actionCell = newRow.insertCell(6);
+                const archiveButton = document.createElement('button');
+                archiveButton.className = 'archive-button';
+                archiveButton.innerText = 'Archive';
+                archiveButton.onclick = function() {
+                    archiveTransaction(transaction);
+                };
+                actionCell.appendChild(archiveButton);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('addTransactionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const date = document.getElementById('date').value;
+            const name = document.getElementById('name').value;
+            const transactionDescription = document.getElementById('transactionDescription').value;
+            const location = document.getElementById('location').value;
+            const purpose = document.getElementById('purpose').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            const transaction = { date, name, transactionDescription, location, purpose, amount };
+            saveTransaction(transaction);
+
+            // Clear the form
+            document.getElementById('addTransactionForm').reset();
+        });
+
+        // Save transaction to Firebase
+        function saveTransaction(transaction) {
+            const transactionsRef = ref(db, 'transactions/');
+            const newTransactionRef = push(transactionsRef);
+            set(newTransactionRef, transaction).then(() => {
+                console.log("Transaction saved to Firebase:", transaction);
+                loadTransactions(); // Reload transactions after saving
+            }).catch((error) => {
+                console.error("Error saving transaction to Firebase:", error);
+            });
+        }
+
+        // Function to archive a specific transaction
+        function archiveTransaction(transaction) {
+            const archivedTransactionsRef = ref(db, 'archivedTransactions/');
+            const newArchivedTransactionRef = push(archivedTransactionsRef);
+            set(newArchivedTransactionRef, transaction).then(() => {
+                removeTransaction(transaction);
+            }).catch((error) => {
+                console.error("Error archiving transaction:", error);
+            });
+        }
+
+        // Remove transaction from Firebase
+        function removeTransaction(transaction) {
+            const transactionsRef = ref(db, 'transactions/');
+            onValue(transactionsRef, (snapshot) => {
+                const data = snapshot.val();
+                for (let key in data) {
+                    if (JSON.stringify(data[key]) === JSON.stringify(transaction)) {
+                        remove(ref(db, `transactions/${key}`)).then(() => {
+                            console.log("Transaction removed from Firebase:", transaction);
+                            loadTransactions(); // Reload transactions after removing
+                        }).catch((error) => {
+                            console.error("Error removing transaction from Firebase:", error);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Function to archive all transactions
+        function archiveTransactions() {
+            const transactionsRef = ref(db, 'transactions/');
+            onValue(transactionsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const transactions = Object.values(data);
+                    transactions.forEach(transaction => archiveTransaction(transaction));
+                }
+            });
+        }
+
+        // Function to toggle the visibility of archived transactions
+        function toggleArchivedTransactions() {
+            const mainSection = document.getElementById('mainSection');
+            const mainFilter = document.getElementById('mainFilter');
+            const mainForm = document.getElementById('mainForm');
+            const archivedSection = document.getElementById('archivedSection');
+
+            if (archivedSection.classList.contains('hidden')) {
+                archivedSection.classList.remove('hidden');
+                mainSection.classList.add('hidden');
+                mainFilter.classList.add('hidden');
+                mainForm.classList.add('hidden');
+                loadArchivedTransactions();
+            } else {
+                archivedSection.classList.add('hidden');
+                mainSection.classList.remove('hidden');
+                mainFilter.classList.remove('hidden');
+                mainForm.classList.remove('hidden');
+            }
+        }
+
+        // Load archived transactions from Firebase
+        function loadArchivedTransactions() {
+            const archivedTransactionsRef = ref(db, 'archivedTransactions/');
+            onValue(archivedTransactionsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const archivedTransactions = Object.values(data);
+                    document.getElementById('archivedTransactionsTable').innerHTML = '';
+                    archivedTransactions.forEach(transaction => addTransactionToTable(transaction, 'archivedTransactionsTable'));
+                }
+            });
+        }
+
+        // Function to download archived transactions as a PDF in landscape mode
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+
+            doc.text('Archived Transactions', 14, 16);
+
+            const headers = [['DATE', 'NAMES', 'TRANSACTION DESCRIPTION', 'LOCATION', 'PURPOSE', 'AMOUNT']];
+            const data = archivedTransactions.map(transaction => [
+                transaction.date,
+                transaction.name,
+                transaction.transactionDescription,
+                transaction.location,
+                transaction.purpose,
+                transaction.amount.toFixed(2)
+            ]);
+
+            doc.autoTable({
+                head: headers,
+                body: data,
+                startY: 30,
+                theme: 'grid'
+            });
+
+            doc.save('archived_transactions.pdf');
+        }
+
+        // Call the loadTransactions function to initialize the transactions
+        loadTransactions();
+    </script>
 </head>
 
 <body>
@@ -201,142 +402,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-    <script>
-        // Array to store transactions
-        const transactions = [];
-        // Array to store archived transactions
-        const archivedTransactions = [];
-
-        // Function to update the total amount
-        function updateTotalAmount() {
-            const totalAmount = transactions.reduce((total, transaction) => total + transaction.amount, 0);
-            document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
-        }
-
-        // Function to add a new transaction to the table
-        function addTransactionToTable(transaction, tableId = 'transactionTable') {
-            const table = document.getElementById(tableId);
-            const newRow = table.insertRow();
-
-            newRow.insertCell(0).innerText = transaction.date;
-            newRow.insertCell(1).innerText = transaction.name;
-            newRow.insertCell(2).innerText = transaction.transactionDescription;
-            newRow.insertCell(3).innerText = transaction.location;
-            newRow.insertCell(4).innerText = transaction.purpose;
-            newRow.insertCell(5).innerText = transaction.amount.toFixed(2);
-
-            if (tableId === 'transactionTable') {
-                const actionCell = newRow.insertCell(6);
-                const archiveButton = document.createElement('button');
-                archiveButton.className = 'archive-button';
-                archiveButton.innerText = 'Archive';
-                archiveButton.onclick = function() {
-                    archiveTransaction(transaction);
-                };
-                actionCell.appendChild(archiveButton);
-            }
-        }
-
-        // Handle form submission
-        document.getElementById('addTransactionForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const date = document.getElementById('date').value;
-            const name = document.getElementById('name').value;
-            const transactionDescription = document.getElementById('transactionDescription').value;
-            const location = document.getElementById('location').value;
-            const purpose = document.getElementById('purpose').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-
-            const transaction = { date, name, transactionDescription, location, purpose, amount };
-            transactions.push(transaction);
-
-            addTransactionToTable(transaction);
-            updateTotalAmount();
-
-            // Clear the form
-            document.getElementById('addTransactionForm').reset();
-        });
-
-        // Handle filter input
-        document.getElementById('filterInput').addEventListener('input', function() {
-            const filterValue = this.value.toLowerCase();
-            const table = document.getElementById('transactionTable');
-            table.innerHTML = '';
-
-            const filteredTransactions = transactions.filter(transaction => transaction.name.toLowerCase().includes(filterValue));
-            filteredTransactions.forEach(transaction => addTransactionToTable(transaction));
-        });
-
-        // Function to archive a specific transaction
-        function archiveTransaction(transaction) {
-            archivedTransactions.push(transaction);
-            transactions.splice(transactions.indexOf(transaction), 1);
-
-            document.getElementById('transactionTable').innerHTML = '';
-            transactions.forEach(transaction => addTransactionToTable(transaction));
-            updateTotalAmount();
-        }
-
-        // Function to archive all transactions
-        function archiveTransactions() {
-            archivedTransactions.push(...transactions);
-            transactions.length = 0;
-
-            document.getElementById('transactionTable').innerHTML = '';
-            updateTotalAmount();
-        }
-
-        // Function to toggle the visibility of archived transactions
-        function toggleArchivedTransactions() {
-            const mainSection = document.getElementById('mainSection');
-            const mainFilter = document.getElementById('mainFilter');
-            const mainForm = document.getElementById('mainForm');
-            const archivedSection = document.getElementById('archivedSection');
-
-            if (archivedSection.classList.contains('hidden')) {
-                archivedSection.classList.remove('hidden');
-                mainSection.classList.add('hidden');
-                mainFilter.classList.add('hidden');
-                mainForm.classList.add('hidden');
-                document.getElementById('archivedTransactionsTable').innerHTML = '';
-
-                archivedTransactions.forEach(transaction => addTransactionToTable(transaction, 'archivedTransactionsTable'));
-            } else {
-                archivedSection.classList.add('hidden');
-                mainSection.classList.remove('hidden');
-                mainFilter.classList.remove('hidden');
-                mainForm.classList.remove('hidden');
-            }
-        }
-
-        // Function to download archived transactions as a PDF in landscape mode
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape');
-
-            doc.text('Archived Transactions', 14, 16);
-
-            const headers = [['DATE', 'NAMES', 'TRANSACTION DESCRIPTION', 'LOCATION', 'PURPOSE', 'AMOUNT']];
-            const data = archivedTransactions.map(transaction => [
-                transaction.date,
-                transaction.name,
-                transaction.transactionDescription,
-                transaction.location,
-                transaction.purpose,
-                transaction.amount.toFixed(2)
-            ]);
-
-            doc.autoTable({
-                head: headers,
-                body: data,
-                startY: 30,
-                theme: 'grid'
-            });
-
-            doc.save('archived_transactions.pdf');
-        }
-    </script>
 </body>
 
 </html>
