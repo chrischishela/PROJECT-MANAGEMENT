@@ -231,18 +231,6 @@
         let tasks = [];
         let completedTasks = [];
 
-        // Clear all tasks from Firebase
-        function clearTasks() {
-            const tasksRef = ref(db, 'tasks/');
-            remove(tasksRef).then(() => {
-                console.log("All tasks cleared");
-                tasks = [];
-                updateTable();
-            }).catch((error) => {
-                console.error("Error clearing tasks:", error);
-            });
-        }
-
         // Load tasks from Firebase
         function loadTasks() {
             const tasksRef = ref(db, 'tasks/');
@@ -495,8 +483,7 @@
             updateTable(filteredTasks);
         });
 
-        // Clear tasks and load tasks from Firebase
-        clearTasks();
+        // Load tasks from Firebase
         loadTasks();
         populateFilterDropdown();
     </script>
