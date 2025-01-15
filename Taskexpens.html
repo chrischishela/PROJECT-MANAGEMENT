@@ -5,114 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Expense Sheet</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-            margin: 20px;
-        }
+       body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 20px;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
+.container {
+    max-width: 1200px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
 
-        h1 {
-            text-align: center;
-            color: #007bff;
-        }
+h1 {
+    text-align: center;
+    color: #007bff;
+}
 
-        .filter,
-        .archive-section {
-            margin-bottom: 20px;
-            text-align: center;
-        }
+.filter,
+.archive-section {
+    margin-bottom: 20px;
+    text-align: center;
+}
 
-        .filter input,
-        .archive-section button {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+.filter input,
+.archive-section button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        .archive-section {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
+.archive-section {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
 
-        .archive-button,
-        .view-archive-button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+.archive-button,
+.view-archive-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-        .view-archive-button {
-            background-color: #17a2b8;
-        }
+.view-archive-button {
+    background-color: #17a2b8;
+}
 
-        .archive-button:hover,
-        .view-archive-button:hover {
-            background-color: #218838;
-        }
+.archive-button:hover,
+.view-archive-button:hover {
+    background-color: #218838;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
 
-        th {
-            background-color: #007bff;
-            color: #fff;
-        }
+th {
+    background-color: #007bff;
+    color: #fff;
+}
 
-        .total {
-            margin-top: 20px;
-            text-align: right;
-            font-size: 18px;
-        }
+.total {
+    margin-top: 20px;
+    text-align: right;
+    font-size: 18px;
+}
 
-        .add-expense-form {
-            margin-bottom: 20px;
-        }
+.add-expense-form {
+    margin-bottom: 20px;
+}
 
-        .add-expense-form input,
-        .add-expense-form select,
-        .add-expense-form button {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+.add-expense-form input,
+.add-expense-form select,
+.add-expense-form button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        .add-expense-form button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
+.add-expense-form button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
 
-        .add-expense-form button:hover {
-            background-color: #0056b3;
-        }
+.add-expense-form button:hover {
+    background-color: #0056b3;
+}
+
+.calculate-total-cost-button {
+    background-color: #ffc107;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+.calculate-total-cost-button:hover {
+    background-color: #e0a800;
+}
+     </style>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Expense Sheet</title>
+    <style>
+        /* Your existing styles */
+    </style>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Expense Sheet</title>
+    <style>
+        /* Your existing styles */
     </style>
 </head>
 <body>
@@ -191,7 +225,6 @@
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
-                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                     <th>ACTION</th>
                 </tr>
@@ -202,6 +235,12 @@
         </table>
         <div class="total">
             Total Cost of Task: <span id="totalCost">0</span>
+        </div>
+        <div>
+            <label for="specificTaskId">Enter Task ID to Calculate Total Cost:</label>
+            <input type="text" id="specificTaskId" placeholder="Task ID">
+            <button class="calculate-total-cost-button" onclick="calculateTotalCostByTaskId()">Calculate Total Cost</button>
+            <div id="specificTotalCost"></div>
         </div>
     </div>
 
@@ -221,7 +260,6 @@
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
-                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
@@ -291,7 +329,7 @@
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
                 const taskId = cells[1].innerText;
-                const rowTotal = parseFloat(cells[12].innerText);
+                const rowTotal = parseFloat(cells[11].innerText);
 
                 if (taskId.includes(filterValue)) {
                     rows[i].style.display = '';
@@ -338,8 +376,7 @@
             newRow.insertCell(8).innerText = qty;
             newRow.insertCell(9).innerText = amount.toFixed(2);
             newRow.insertCell(10).innerText = laborCost.toFixed(2);
-            newRow.insertCell(11).innerText = labor;
-            newRow.insertCell(12).innerText = (total + laborCost).toFixed(2);
+            newRow.insertCell(11).innerText = (total + laborCost).toFixed(2);
 
             const archiveButton = document.createElement('button');
             archiveButton.className = 'archive-button';
@@ -347,7 +384,7 @@
             archiveButton.onclick = function() {
                 archiveTasksById(taskId);
             };
-            const actionCell = newRow.insertCell(13);
+            const actionCell = newRow.insertCell(12);
             actionCell.appendChild(archiveButton);
 
             // Clear the form
@@ -366,7 +403,7 @@
 
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
-                const rowTotal = parseFloat(cells[12].innerText);
+                const rowTotal = parseFloat(cells[11].innerText);
                 totalCost += rowTotal;
             }
 
@@ -398,8 +435,7 @@
                         qty: cells[8].innerText,
                         amount: cells[9].innerText,
                         laborCost: cells[10].innerText,
-                        personnel: cells[11].innerText,
-                        total: cells[12].innerText
+                        total: cells[11].innerText
                     };
                     archivedTasks.push(archivedTask);
                     table.deleteRow(i);
@@ -430,8 +466,7 @@ archivedTasks.forEach(task => {
     newRow.insertCell(8).innerText = task.qty;
     newRow.insertCell(9).innerText = task.amount;
     newRow.insertCell(10).innerText = task.laborCost;
-    newRow.insertCell(11).innerText = task.personnel;
-    newRow.insertCell(12).innerText = task.total;
+    newRow.insertCell(11).innerText = task.total;
 });
 
 archivedContainer.style.display = 'block';
@@ -446,6 +481,26 @@ function viewMainTasks() {
 window.onload = function() {
     loadResourceNames();
 };
+
+// Calculate total cost by task ID
+function calculateTotalCostByTaskId() {
+    const specificTaskId = document.getElementById('specificTaskId').value;
+    const table = document.getElementById('expenseTable');
+    const rows = table.getElementsByTagName('tr');
+    let totalCost = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        const taskId = cells[1].innerText;
+        const rowTotal = parseFloat(cells[11].innerText);
+
+        if (taskId === specificTaskId) {
+            totalCost += rowTotal;
+        }
+    }
+
+    document.getElementById('specificTotalCost').innerText = `Total Cost for Task ID ${specificTaskId}: ${totalCost.toFixed(2)}`;
+}
 </script>
 </body>
 </html>
