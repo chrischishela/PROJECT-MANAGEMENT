@@ -178,7 +178,7 @@
     <!-- Add Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -250,6 +250,7 @@
 
         // Save tasks to Firebase
         function saveTask(task) {
+            console.log("Saving task to Firebase:", task); // Log task data
             const tasksRef = ref(db, 'tasks/');
             const newTaskRef = push(tasksRef);
             set(newTaskRef, task).then(() => {
@@ -474,72 +475,8 @@
         loadTasks();
         populateFilterDropdown();
     </script>
-</head>
 
-<body>
-    <header>
-        <h1>Task Sheet</h1>
-    </header>
-
-    <div class="button-container">
-        <select id="filterProjectDropdown">
-            <option value="none">None</option>
-            <!-- Project options will be populated dynamically -->
-        </select>
-        <button id="viewAllBtn">All Tasks</button>
-        <button id="addTaskBtn">Add Task</button>
-        <button id="viewCompletedBtn">View Completed Tasks</button>
-    </div>
-
-    <table id="taskTable">
-        <thead>
-            <tr>
-                <th>Task ID</th>
-                <th>Project Name</th>
-                <th>Task Description</th>
-                <th>Location</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Assigned To</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Duration</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Task rows will be added dynamically here -->
-        </tbody>
-    </table>
-
-    <!-- Modal for adding tasks -->
-    <div class="modal" id="taskModal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <h2>Add Task</h2>
-            <form id="taskForm">
-                <label for="projectName">Project Name:</label>
-                <select id="projectName" required></select><br><br>
-
-                <label for="taskDescription">Task Description:</label>
-                <input type="text" id="taskDescription" required><br><br>
-
-                <label for="location">Location:</label>
-                <input type="text" id="location" required><br><br>
-
-                <label for="priority">Priority:</label>
-                <select id="priority">
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select><br><br>
-
-                <button type="submit">Save Task</button>
-            </form>
-        </div>
-    </div>
-
-   <!-- New Firebase script -->
+<!-- New Firebase script -->
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -553,7 +490,7 @@
         apiKey: "AIzaSyAADq3tI5EzMWP8eB69MgyYbcsW_Akcqc4",
         authDomain: "chishela-4d6fa.firebaseapp.com",
         projectId: "chishela-4d6fa",
-        storageBucket: "chishela-4d6fa.appspot.com",
+        storageBucket: "chishela-4d6fa.firebasestorage.app",
         messagingSenderId: "717715004324",
         appId: "1:717715004324:web:ff821ff48227c4e1d97f31",
         measurementId: "G-6513W7DMJ0"
