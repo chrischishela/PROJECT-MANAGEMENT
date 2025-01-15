@@ -5,345 +5,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Sheet</title>
-   <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-        margin: 0;
-        padding: 0;
-    }
-
-    header {
-        background-color: #4CAF50;
-        color: white;
-        text-align: center;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .button-container {
-        margin: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .button-container button,
-    .button-container select {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .button-container button:hover,
-    .button-container select:hover {
-        background-color: #45a049;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px auto;
-        overflow-x: auto;
-    }
-
-    th, td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
-
-    th {
-        background-color: #4CAF50;
-        color: white;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    th, td {
-        min-width: 120px;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .modal-content {
-        background-color: white;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 90%;
-        max-width: 600px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .close {
-        color: #aaa;
-        font-size: 28px;
-        font-weight: bold;
-        float: right;
-        cursor: pointer;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #4CAF50;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
-
-    .dropdown-content button {
-        color: white;
-        padding: 12px 16px;
-        text-align: left;
-        background-color: #4CAF50;
-        border: none;
-        width: 100%;
-        cursor: pointer;
-    }
-
-    .dropdown-content button:hover {
-        background-color: #45a049;
-    }
-
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-
-    .dropdown button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-    }
-
-    .dropdown button:hover {
-        background-color: #090b09;
-    }
-
-    input[type="text"], select {
-        padding: 10px;
-        width: 100%;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-sizing: border-box;
-    }
-
-    button[type="submit"] {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-
-    button[type="submit"]:hover {
-        background-color: #45a049;
-    }
     <style>
         body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-        margin: 0;
-        padding: 0;
-    }
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
 
-    header {
-        background-color: #4CAF50;
-        color: white;
-        text-align: center;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-    .button-container {
-        margin: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
+        .button-container {
+            margin: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-    .button-container button,
-    .button-container select {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+        .button-container button,
+        .button-container select {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .button-container button:hover,
-    .button-container select:hover {
-        background-color: #45a049;
-    }
+        .button-container button:hover,
+        .button-container select:hover {
+            background-color: #45a049;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px auto;
-        overflow-x: auto;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
 
-    th, td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
 
-    th {
-        background-color: #4CAF50;
-        color: white;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
 
-    th, td {
-        min-width: 120px;
-    }
+        th, td {
+            min-width: 120px;
+        }
 
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.4);
-    }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
 
-    .modal-content {
-        background-color: white;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 90%;
-        max-width: 600px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-    .close {
-        color: #aaa;
-        font-size: 28px;
-        font-weight: bold;
-        float: right;
-        cursor: pointer;
-    }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            float: right;
+            cursor: pointer;
+        }
 
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #4CAF50;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #4CAF50;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-    .dropdown-content button {
-        color: white;
-        padding: 12px 16px;
-        text-align: left;
-        background-color: #4CAF50;
-        border: none;
-        width: 100%;
-        cursor: pointer;
-    }
+        .dropdown-content button {
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            background-color: #4CAF50;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
 
-    .dropdown-content button:hover {
-        background-color: #45a049;
-    }
+        .dropdown-content button:hover {
+            background-color: #45a049;
+        }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-    .dropdown button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-    }
+        .dropdown button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
 
-    .dropdown button:hover {
-        background-color: #090b09;
-    }
+        .dropdown button:hover {
+            background-color: #090b09;
+        }
 
-    input[type="text"], select {
-        padding: 10px;
-        width: 100%;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-sizing: border-box;
-    }
+        input[type="text"], select {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
 
-    button[type="submit"] {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-    button[type="submit"]:hover {
-        background-color: #45a049;
-    }
-        </style>
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
     <!-- Add Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -352,14 +183,14 @@
 
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID",
-            measurementId: "YOUR_MEASUREMENT_ID",
-            databaseURL: "YOUR_DATABASE_URL"
+            apiKey: "AIzaSyAADq3tI5EzMWP8eB69MgyYbcsW_Akcqc4",
+            authDomain: "chishela-4d6fa.firebaseapp.com",
+            projectId: "chishela-4d6fa",
+            storageBucket: "chishela-4d6fa.firebasestorage.app",
+            messagingSenderId: "717715004324",
+            appId: "1:717715004324:web:ff821ff48227c4e1d97f31",
+            measurementId: "G-6513W7DMJ0",
+            databaseURL: "https://chishela-4d6fa-default-rtdb.firebaseio.com/"
         };
 
         // Initialize Firebase
@@ -415,6 +246,8 @@
                 }
                 console.log("Tasks loaded from Firebase:", tasks);
                 updateTable();
+            }, (error) => {
+                console.error("Error loading tasks from Firebase:", error);
             });
         }
 
@@ -445,7 +278,7 @@
             });
         }
 
-        // Move completed tasks to completedTask.html
+        // Move completed tasks to completedTasks.html
         function moveToCompletedTasks(task, taskKey) {
             // Remove task from current tasks
             const taskIndex = tasks.findIndex(t => t.key === taskKey);
@@ -470,7 +303,7 @@
             });
         }
 
-        // Debounce function to limit the rate at which a function can fire
+        // Debounce function to limit the rate at which a function can fire.
         function debounce(func, delay) {
             let debounceTimer;
             return function() {
@@ -637,15 +470,15 @@
         // Populate project dropdown in the add task form
         function populateProjectDropdown() {
             const projectDropdown = document.getElementById('projectName');
-            projectDropdown.innerHTML = Object.keys(projectNames).map(project => 
-                `<option value="${project}">${project}</option>` 
+            projectDropdown.innerHTML = Object.keys(projectNames).map(project =>
+                `<option value="${project}">${project}</option>`
             ).join('');
         }
 
         // Populate the filter dropdown with project names, including "None"
         function populateFilterDropdown() {
-            filterProjectDropdown.innerHTML = `<option value="none">None</option>` + Object.keys(projectNames).map(project => 
-                `<option value="${project}">${project}</option>` 
+            filterProjectDropdown.innerHTML = `<option value="none">None</option>` + Object.keys(projectNames).map(project =>
+                `<option value="${project}">${project}</option>`
             ).join('');
         }
 
