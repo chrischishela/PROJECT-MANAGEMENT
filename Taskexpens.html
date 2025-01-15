@@ -115,7 +115,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container" id="mainContainer">
         <h1>Task Expense Sheet</h1>
@@ -131,31 +130,31 @@
         <div class="add-expense-form">
             <h2>Add New Expense</h2>
             <form id="addExpenseForm">
-                <input type="date" id="date" required placeholder="Date">
-                <input type="text" id="taskId" required placeholder="Task ID">
-                <input type="text" id="projectName" required placeholder="Project Name">
-                <input type="text" id="taskDescription" required placeholder="Task Description">
-                <select id="supplier" required>
+                <input type="date" id="date" placeholder="Date">
+                <input type="text" id="taskId" placeholder="Task ID">
+                <input type="text" id="projectName" placeholder="Project Name">
+                <input type="text" id="taskDescription" placeholder="Task Description">
+                <select id="supplier">
                     <option value="">Select Supplier</option>
                     <option value="Hazida Motors">Hazida Motors</option>
                     <option value="Freight and Passengers">Freight and Passengers</option>
                     <option value="Hazida Limited">Hazida Limited</option>
                 </select>
-                <input type="text" id="vat" required placeholder="VAT">
-                <select id="payee" required>
+                <input type="text" id="vat" placeholder="VAT">
+                <select id="payee">
                     <option value="">Select Payee</option>
                     <option value="Hazida Limited">Hazida Limited</option>
                     <option value="Hazida Motors">Hazida Motors</option>
                     <option value="Freight and Passengers Limited">Freight and Passengers Limited</option>
                 </select>
-                <input type="number" id="qty" required placeholder="Quantity">
-                <select id="resourceName" required>
+                <input type="number" id="qty" placeholder="Quantity">
+                <select id="resourceName">
                     <option value="">Select Resource Name</option>
                 </select>
-                <input type="number" id="amount" required placeholder="Amount" readonly>
+                <input type="number" id="amount" placeholder="Amount" readonly>
 
                 <label for="labor">Labor:</label>
-                <select id="labor" required>
+                <select id="labor">
                     <option value="">Select Labor</option>
                     <option value="BRIGHTON MATOLOKOSH">BRIGHTON MATOLOKOSH</option>
                     <option value="CAPHAS TEMBO">CAPHAS TEMBO</option>
@@ -173,8 +172,8 @@
                     <option value="TEMBEYA SAKALA">TEMBEYA SAKALA</option>
                     <option value="KELVIN SIAME">KELVIN SIAME</option>
                 </select>
-                <input type="number" id="hours" required placeholder="Hours">
-                <input type="number" id="laborCost" required placeholder="Labor Cost" readonly>
+                <input type="number" id="hours" placeholder="Hours">
+                <input type="number" id="laborCost" placeholder="Labor Cost" readonly>
                 <button type="submit">Add Expense</button>
             </form>
         </div>
@@ -192,6 +191,7 @@
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
+                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                     <th>ACTION</th>
                 </tr>
@@ -221,6 +221,7 @@
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
+                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
@@ -290,7 +291,7 @@
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
                 const taskId = cells[1].innerText;
-                const rowTotal = parseFloat(cells[11].innerText);
+                const rowTotal = parseFloat(cells[12].innerText);
 
                 if (taskId.includes(filterValue)) {
                     rows[i].style.display = '';
@@ -306,82 +307,56 @@
         document.getElementById('addExpenseForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const date = document.getElementById('date').value;
-            const taskId = document.getElementById('taskId').value;
-            const projectName = document.getElementById('projectName').value;
-            const taskDescription = document.getElementById('taskDescription').value;
-            const supplier = document.getElementById('supplier').value;
-            const vat = document.getElementById('vat').value;
-            const payee = document.getElementById('payee').value;
-            const qty = parseInt(document.getElementById('qty').value);
-            const resourceName = document.getElementById('resourceName').options[document.getElementById('resourceName').selectedIndex].text;
-            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('date').value || '';
+            const taskId = document.getElementById('taskId').value || '';
+            const projectName = document.getElementById('projectName').value || '';
+            const taskDescription = document.getElementById('taskDescription').value || '';
+            const supplier = document.getElementById('supplier').value || '';
+            const vat = document.getElementById('vat').value || '';
+            const payee = document.getElementById('payee').value || '';
+            const qty = parseInt(document.getElementById('qty').value) || 0;
+            const resourceName = document.getElementById('resourceName').options[document.getElementById('resourceName').selectedIndex].text || '';
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
             const total = qty * amount;
 
-            const labor = document.getElementById('labor').value;
-            const hours = parseFloat(document.getElementById('hours').value);
-            const laborCost = parseFloat(document.getElementById('laborCost').value);
+            const labor = document.getElementById('labor').value || '';
+            const hours = parseFloat(document.getElementById('hours').value) || 0;
+            const laborCost = parseFloat(document.getElementById('laborCost').value) || 0;
 
-            // Fetch inventory data from Firebase
-            const inventoryRef = ref(db, "inventory/");
-            onValue(inventoryRef, (snapshot) => {
-                const data = snapshot.val();
-                const item = Object.values(data).find(i => i.name === resourceName);
+            // Add expense to the table
+            const table = document.getElementById('expenseTable');
+            const newRow = table.insertRow();
 
-                if (item && qty <= item.stockAvailable) {
-                    // Update the inventory
-                    const itemRef = ref(db, `inventory/${Object.keys(data).find(key => data[key].name === resourceName)}`);
-                    update(itemRef, {
-                        stockAvailable: item.stockAvailable - qty,
-                        requested: (item.requested || 0) + qty
-                    });
+            newRow.insertCell(0).innerText = date;
+            newRow.insertCell(1).innerText = taskId;
+            newRow.insertCell(2).innerText = projectName;
+            newRow.insertCell(3).innerText = resourceName;
+            newRow.insertCell(4).innerText = taskDescription;
+            newRow.insertCell(5).innerText = supplier;
+            newRow.insertCell(6).innerText = vat;
+            newRow.insertCell(7).innerText = payee;
+            newRow.insertCell(8).innerText = qty;
+            newRow.insertCell(9).innerText = amount.toFixed(2);
+            newRow.insertCell(10).innerText = laborCost.toFixed(2);
+            newRow.insertCell(11).innerText = labor;
+            newRow.insertCell(12).innerText = (total + laborCost).toFixed(2);
 
-                    // Log the history
-                    const historyRef = ref(db, "history/");
-                    const newHistoryRef = push(historyRef);
-                    set(newHistoryRef, {
-                        action: "Allocate",
-                        details: `Allocated ${qty} of item ${resourceName} from bin ${item.binId} to task ${taskId} for project ${projectName}`,
-                        timestamp: new Date().toISOString()
-                    });
+            const archiveButton = document.createElement('button');
+            archiveButton.className = 'archive-button';
+            archiveButton.innerText = 'Archive';
+            archiveButton.onclick = function() {
+                archiveTasksById(taskId);
+            };
+            const actionCell = newRow.insertCell(13);
+            actionCell.appendChild(archiveButton);
 
-                    // Add expense to the table
-                    const table = document.getElementById('expenseTable');
-                    const newRow = table.insertRow();
+            // Clear the form
+            document.getElementById('addExpenseForm').reset();
+            document.getElementById('amount').value = '';
+            document.getElementById('laborCost').value = '';
 
-                    newRow.insertCell(0).innerText = date;
-                    newRow.insertCell(1).innerText = taskId;
-                    newRow.insertCell(2).innerText = projectName;
-                    newRow.insertCell(3).innerText = resourceName;
-                    newRow.insertCell(4).innerText = taskDescription;
-                    newRow.insertCell(5).innerText = supplier;
-                    newRow.insertCell(6).innerText = vat;
-                    newRow.insertCell(7).innerText = payee;
-                    newRow.insertCell(8).innerText = qty;
-                    newRow.insertCell(9).innerText = amount.toFixed(2);
-                    newRow.insertCell(10).innerText = laborCost.toFixed(2);
-                    newRow.insertCell(11).innerText = (total + laborCost).toFixed(2);
-
-                    const archiveButton = document.createElement('button');
-                    archiveButton.className = 'archive-button';
-                    archiveButton.innerText = 'Archive';
-                    archiveButton.onclick = function() {
-                        archiveTasksById(taskId);
-                    };
-                    const actionCell = newRow.insertCell(12);
-                    actionCell.appendChild(archiveButton);
-
-                    // Clear the form
-                    document.getElementById('addExpenseForm').reset();
-                    document.getElementById('amount').value = '';
-                    document.getElementById('laborCost').value = '';
-
-                    // Update total cost
-                    updateTotalCost();
-                } else {
-                    alert('Insufficient stock available or item not found in inventory.');
-                }
-            }, { onlyOnce: true });
+            // Update total cost
+            updateTotalCost();
         });
 
         function updateTotalCost() {
@@ -391,7 +366,7 @@
 
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
-                const rowTotal = parseFloat(cells[11].innerText);
+                const rowTotal = parseFloat(cells[12].innerText);
                 totalCost += rowTotal;
             }
 
@@ -423,7 +398,8 @@
                         qty: cells[8].innerText,
                         amount: cells[9].innerText,
                         laborCost: cells[10].innerText,
-                        total: cells[11].innerText
+                        personnel: cells[11].innerText,
+                        total: cells[12].innerText
                     };
                     archivedTasks.push(archivedTask);
                     table.deleteRow(i);
@@ -440,7 +416,7 @@
             archivedTasksTable.innerHTML = '';
 
             const archivedTasks = JSON.parse(localStorage.getItem('archivedTasks')) || [];
-            archivedTasks.forEach(task => {
+archivedTasks.forEach(task => {
     const newRow = archivedTasksTable.insertRow();
 
     newRow.insertCell(0).innerText = task.date;
@@ -454,7 +430,8 @@
     newRow.insertCell(8).innerText = task.qty;
     newRow.insertCell(9).innerText = task.amount;
     newRow.insertCell(10).innerText = task.laborCost;
-    newRow.insertCell(11).innerText = task.total;
+    newRow.insertCell(11).innerText = task.personnel;
+    newRow.insertCell(12).innerText = task.total;
 });
 
 archivedContainer.style.display = 'block';
