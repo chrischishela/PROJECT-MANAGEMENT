@@ -26,7 +26,7 @@
             z-index: 1000;
         }
 
-        .sidebar img { 
+        .sidebar img {
             max-width: 100%;
             height: auto;
         }
@@ -160,8 +160,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 20px;
             text-align: center;
-            width: 100%;
-            max-width: 30%;
+            width: calc(33.333% - 20px);
             margin-bottom: 20px;
         }
 
@@ -250,6 +249,12 @@
             .card {
                 width: 100%;
                 margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .card {
+                width: calc(50% - 20px);
             }
         }
     </style>
