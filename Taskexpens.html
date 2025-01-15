@@ -129,26 +129,6 @@ th {
 }
      </style>
 </head>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Expense Sheet</title>
-    <style>
-        /* Your existing styles */
-    </style>
-</head>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Expense Sheet</title>
-    <style>
-        /* Your existing styles */
-    </style>
-</head>
 <body>
     <div class="container" id="mainContainer">
         <h1>Task Expense Sheet</h1>
@@ -225,6 +205,7 @@ th {
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
+                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                     <th>ACTION</th>
                 </tr>
@@ -250,6 +231,7 @@ th {
                     <th>QTY</th>
                     <th>AMOUNT</th>
                     <th>LABOR COST</th>
+                    <th>PERSONNEL</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
@@ -310,27 +292,43 @@ th {
             document.getElementById('laborCost').value = laborCost.toFixed(2);
         });
 
-        document.getElementById('taskFilter').addEventListener('input', function() {
-            const filterValue = this.value;
-            const table = document.getElementById('expenseTable');
-            const rows = table.getElementsByTagName('tr');
-            let totalCost = 0;
+        // Load existing expenses from Firebase
+        function loadExpenses() {
+            const expensesRef = ref(db, "expenses/");
+            onValue(expensesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const table = document.getElementById('expenseTable');
+                    table.innerHTML = ''; // Clear existing rows
+                    Object.keys(data).forEach((key) => {
+                        const expense = data[key];
+                        const newRow = table.insertRow();
+                        newRow.insertCell(0).innerText = expense.date;
+                        newRow.insertCell(1).innerText = expense.taskId;
+                        newRow.insertCell(2).innerText = expense.projectName;
+                        newRow.insertCell(3).innerText = expense.resourceName;
+                        newRow.insertCell(4).innerText = expense.taskDescription;
+                        newRow.insertCell(5).innerText = expense.supplier;
+                        newRow.insertCell(6).innerText = expense.vat;
+                        newRow.insertCell(7).innerText = expense.payee;
+                        newRow.insertCell(8).innerText = expense.qty;
+                        newRow.insertCell(9).innerText = expense.amount.toFixed(2);
+                        newRow.insertCell(10).innerText = expense.laborCost.toFixed(2);
+                        newRow.insertCell(11).innerText = expense.personnel;
+                        newRow.insertCell(12).innerText = expense.total.toFixed(2);
 
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                const taskId = cells[1].innerText;
-                const rowTotal = parseFloat(cells[11].innerText);
-
-                if (taskId.includes(filterValue)) {
-                    rows[i].style.display = '';
-                    totalCost += rowTotal;
-                } else {
-                    rows[i].style.display = 'none';
+                        const archiveButton = document.createElement('button');
+                        archiveButton.className = 'archive-button';
+                        archiveButton.innerText = 'Archive';
+                        archiveButton.onclick = function() {
+                            archiveTasksById(expense.taskId);
+                        };
+                        const actionCell = newRow.insertCell(13);
+                        actionCell.appendChild(archiveButton);
+                    });
                 }
-            }
-
-            document.getElementById('totalCost').innerText = totalCost.toFixed(2);
-        });
+            });
+        }
 
         document.getElementById('addExpenseForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -350,6 +348,27 @@ th {
             const labor = document.getElementById('labor').value || '';
             const hours = parseFloat(document.getElementById('hours').value) || 0;
             const laborCost = parseFloat(document.getElementById('laborCost').value) || 0;
+            const personnel = document.getElementById('labor').value || '';
+
+            const newExpense = {
+                date,
+                taskId,
+                projectName,
+                resourceName,
+                taskDescription,
+                supplier,
+                vat,
+                payee,
+                qty,
+                amount,
+                laborCost,
+                personnel,
+                total: total + laborCost
+            };
+
+            // Add expense to Firebase
+            const newExpenseRef = push(ref(db, "expenses/"));
+            set(newExpenseRef, newExpense);
 
             // Add expense to the table
             const table = document.getElementById('expenseTable');
@@ -366,7 +385,8 @@ th {
             newRow.insertCell(8).innerText = qty;
             newRow.insertCell(9).innerText = amount.toFixed(2);
             newRow.insertCell(10).innerText = laborCost.toFixed(2);
-            newRow.insertCell(11).innerText = (total + laborCost).toFixed(2);
+            newRow.insertCell(11).innerText = personnel;
+            newRow.insertCell(12).innerText = (total + laborCost).toFixed(2);
 
             const archiveButton = document.createElement('button');
             archiveButton.className = 'archive-button';
@@ -374,7 +394,7 @@ th {
             archiveButton.onclick = function() {
                 archiveTasksById(taskId);
             };
-            const actionCell = newRow.insertCell(12);
+            const actionCell = newRow.insertCell(13);
             actionCell.appendChild(archiveButton);
 
             // Clear the form
@@ -393,7 +413,7 @@ th {
 
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
-                const rowTotal = parseFloat(cells[11].innerText);
+                const rowTotal = parseFloat(cells[12].innerText);
                 totalCost += rowTotal;
             }
 
@@ -425,7 +445,8 @@ th {
                         qty: cells[8].innerText,
                         amount: cells[9].innerText,
                         laborCost: cells[10].innerText,
-                        total: cells[11].innerText
+                        personnel: cells[11].innerText,
+                        total: cells[12].innerText
                     };
                     archivedTasks.push(archivedTask);
                     table.deleteRow(i);
@@ -441,9 +462,7 @@ th {
             const archivedTasksTable = document.getElementById('archivedTasksTable');
             archivedTasksTable.innerHTML = '';
 
-            const archivedTasks = JSON.parse(localStorage.getItem('archivedTasks')) || [];
-archivedTasks.forEach(task => {
-    const newRow = archivedTasksTable.insertRow();
+            const newRow = archivedTasksTable.insertRow();
 
     newRow.insertCell(0).innerText = task.date;
     newRow.insertCell(1).innerText = task.taskId;
@@ -456,7 +475,8 @@ archivedTasks.forEach(task => {
     newRow.insertCell(8).innerText = task.qty;
     newRow.insertCell(9).innerText = task.amount;
     newRow.insertCell(10).innerText = task.laborCost;
-    newRow.insertCell(11).innerText = task.total;
+    newRow.insertCell(11).innerText = task.personnel;
+    newRow.insertCell(12).innerText = task.total;
 });
 
 archivedContainer.style.display = 'block';
@@ -470,27 +490,8 @@ function viewMainTasks() {
 // Load resource names when the page loads
 window.onload = function() {
     loadResourceNames();
+    loadExpenses(); // Load existing expenses from Firebase
 };
-
-// Calculate total cost by task ID
-function calculateTotalCostByTaskId() {
-    const specificTaskId = document.getElementById('specificTaskId').value;
-    const table = document.getElementById('expenseTable');
-    const rows = table.getElementsByTagName('tr');
-    let totalCost = 0;
-
-    for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
-        const taskId = cells[1].innerText;
-        const rowTotal = parseFloat(cells[11].innerText);
-
-        if (taskId === specificTaskId) {
-            totalCost += rowTotal;
-        }
-    }
-
-    document.getElementById('specificTotalCost').innerText = `Total Cost for Task ID ${specificTaskId}: ${totalCost.toFixed(2)}`;
-}
 </script>
 </body>
 </html>
