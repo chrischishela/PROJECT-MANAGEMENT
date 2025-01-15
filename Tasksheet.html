@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -176,25 +177,28 @@
     </style>
     <!-- Add Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7EgVqWwPje0",
-            authDomain: "project-management-a1c5e.firebaseapp.com",
-            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
-            projectId: "project-management-a1c5e",
-            storageBucket: "project-management-a1c5e.appspot.com",
-            messagingSenderId: "662718236281",
-            appId: "1:662718236281:web:e859b39671aefa67e436a8",
+            apiKey: "AIzaSyAADq3tI5EzMWP8eB69MgyYbcsW_Akcqc4",
+            authDomain: "chishela-4d6fa.firebaseapp.com",
+            projectId: "chishela-4d6fa",
+            storageBucket: "chishela-4d6fa.firebasestorage.app",
+            messagingSenderId: "717715004324",
+            appId: "1:717715004324:web:ff821ff48227c4e1d97f31",
+            measurementId: "G-6513W7DMJ0",
+            databaseURL: "https://chishela-4d6fa-default-rtdb.firebaseio.com/"
         };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        // Get DOM elements
+        // Get elements from the DOM
         const addTaskBtn = document.getElementById('addTaskBtn');
         const taskModal = document.getElementById('taskModal');
         const closeModal = document.getElementById('closeModal');
@@ -534,12 +538,10 @@
             <h2>Add Task</h2>
             <form id="taskForm">
                 <label for="projectName">Project Name:</label>
-                <select id="projectName" required></select><br><br>
-
-                <label for="taskDescription">Task Description:</label>
+                <select id="projectName" required></select><br><br><label for="taskDescription">Task Description:</label>
                 <input type="text" id="taskDescription" required><br><br>
 
-               <label for="location">Location:</label>
+                <label for="location">Location:</label>
                 <input type="text" id="location" required><br><br>
 
                 <label for="priority">Priority:</label>
