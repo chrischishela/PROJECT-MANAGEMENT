@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -205,16 +204,43 @@
         const viewAllBtn = document.getElementById('viewAllBtn');
         const filterProjectDropdown = document.getElementById('filterProjectDropdown');
 
-        const projectNames = [
-            "Hazida Limited", "Hazida Motors", "Hazida Foods", "Freight and Passengers", 
-            "Lumumba Showroom Ezone", "Manda Hill Ezone Store", "Cento Ezone Store", 
-            "Cosmopolitan Ezone Store", "Trident Ezone Store", "Kitwe Ezone Store", 
-            "Livingstone Ezone Store", "Mr Mussa", "Mr Ebrahim", "Madam Shirin", 
-            "Mr Ishmil", "Mr Shabbir", "Mr Riaz", "Mr Faiyaz", "Northmeads Flats 1", 
-            "Northmeads Flats 2", "Fields Works"
-        ];
+        const projectNames = {
+            "Hazida Limited": "HAZ-",
+            "Hazida Motors": "HM-",
+            "Hazida Foods": "HF-",
+            "Freight and Passengers": "FP-",
+            "Lumumba Showroom Ezone": "LSE-",
+            "Manda Hill Ezone Store": "MHE-",
+            "Cento Ezone Store": "CES-",
+            "Cosmopolitan Ezone Store": "COS-",
+            "Trident Ezone Store": "TES-",
+            "Kitwe Ezone Store": "KES-",
+            "Livingstone Ezone Store": "LES-",
+            "Mr Mussa": "MM-",
+            "Mr Ebrahim": "ME-",
+            "Madam Shirin": "MS-",
+            "Mr Ishmil": "MI-",
+            "Mr Shabbir": "MSH-",
+            "Mr Riaz": "MR-",
+            "Mr Faiyaz": "MF-",
+            "Northmeads Flats 1": "NF1-",
+            "Northmeads Flats 2": "NF2-",
+            "Fields Works": "FW-"
+        };
 
         let tasks = [];
+
+        // Clear all tasks from Firebase
+        function clearTasks() {
+            const tasksRef = ref(db, 'tasks/');
+            remove(tasksRef).then(() => {
+                console.log("All tasks cleared");
+                tasks = [];
+                updateTable();
+            }).catch((error) => {
+                console.error("Error clearing tasks:", error);
+            });
+        }
 
         // Load tasks from Firebase
         function loadTasks() {
@@ -226,7 +252,6 @@
                     tasks.push({ key, ...data[key] });
                 }
                 updateTable();
-                storeActiveTasks(); // Store active tasks in localStorage
             });
         }
 
@@ -275,14 +300,13 @@
         taskForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const taskId = document.getElementById('taskId').value;
             const projectName = document.getElementById('projectName').value;
             const taskDescription = document.getElementById('taskDescription').value;
             const location = document.getElementById('location').value;
             const priority = document.getElementById('priority').value;
 
             const newTask = {
-                taskId,
+                taskId: projectNames[projectName] + '0000', // Placeholder ID to be edited in the table
                 projectName,
                 taskDescription,
                 location,
@@ -299,13 +323,33 @@
             taskForm.reset();
         });
 
-        // Update the task table with active tasks
-        function updateTable(filteredTasks = tasks) {
+        // Update the task table with tasks
+        function updateTable(filterCompleted = false) {
             taskTable.innerHTML = ''; // Clear the table
 
-            filteredTasks.forEach((task) => {
+            tasks.forEach((task) => {
+                if (filterCompleted && task.status === 'Completed') return;
+
                 const row = taskTable.insertRow();
-                row.insertCell(0).innerText = task.taskId;
+
+                // Task ID column with text input
+                const taskIdCell = row.insertCell(0);
+                const taskIdInput = document.createElement('input');
+                taskIdInput.type = 'text';
+                taskIdInput.value = task.taskId;
+                taskIdInput.placeholder = 'Enter ID...';
+
+                // Lock input for completed tasks
+                if (task.status === 'Completed') {
+                    taskIdInput.disabled = true;
+                } else {
+                    taskIdInput.addEventListener('input', debounce((event) => {
+                        task.taskId = event.target.value;
+                        updateTask(task, task.key);
+                    }, 500));
+                }
+                taskIdCell.appendChild(taskIdInput);
+
                 row.insertCell(1).innerText = task.projectName;
                 row.insertCell(2).innerText = task.taskDescription;
                 row.insertCell(3).innerText = task.location;
@@ -368,7 +412,6 @@
                         task.status = 'Active';
                         updateTask(task, task.key);
                         updateTable();
-                        storeActiveTasks(); // Update active tasks in localStorage
                     });
 
                     const completeButton = document.createElement('button');
@@ -378,7 +421,6 @@
                         task.status = 'Completed';
                         updateTask(task, task.key);
                         updateTable();
-                        storeActiveTasks(); // Update active tasks in localStorage
                     });
 
                     dropdownContent.appendChild(startButton);
@@ -390,36 +432,28 @@
             });
         }
 
-        // Store active tasks in localStorage
-        function storeActiveTasks() {
-            const activeTasks = tasks.filter(task => task.status === 'Active');
-            localStorage.setItem('activeTasks', JSON.stringify(activeTasks));
-        }
-
         // Show all tasks when "All Tasks" button is clicked
         viewAllBtn.addEventListener('click', () => {
-            const activeTasks = tasks.filter(task => task.status !== 'Completed');
-            updateTable(activeTasks);
+            updateTable(true); // Do not include completed tasks
         });
 
         // Show only completed tasks when the "Completed Tasks" button is clicked
         viewCompletedBtn.addEventListener('click', () => {
-            const selectedProject = filterProjectDropdown.value;
-            const completedTasksFiltered = tasks.filter(task => task.status === 'Completed' && (selectedProject !== 'none' ? task.projectName === selectedProject : true));
-            updateTable(completedTasksFiltered);
+            const completedTasksFiltered = tasks.filter(task => task.status === 'Completed');
+            updateTable(false); // Only include completed tasks
         });
 
         // Populate project dropdown in the add task form
         function populateProjectDropdown() {
             const projectDropdown = document.getElementById('projectName');
-            projectDropdown.innerHTML = projectNames.map(project => 
+            projectDropdown.innerHTML = Object.keys(projectNames).map(project => 
                 `<option value="${project}">${project}</option>` 
             ).join('');
         }
 
         // Populate the filter dropdown with project names, including "None"
         function populateFilterDropdown() {
-            filterProjectDropdown.innerHTML = `<option value="none">None</option>` + projectNames.map(project => 
+            filterProjectDropdown.innerHTML = `<option value="none">None</option>` + Object.keys(projectNames).map(project => 
                 `<option value="${project}">${project}</option>` 
             ).join('');
         }
@@ -433,7 +467,8 @@
             updateTable(filteredTasks);
         });
 
-        // Initial load of tasks from Firebase and populate filter dropdown
+        // Clear tasks and load tasks from Firebase
+        clearTasks();
         loadTasks();
         populateFilterDropdown();
     </script>
@@ -481,9 +516,6 @@
             <span class="close" id="closeModal">&times;</span>
             <h2>Add Task</h2>
             <form id="taskForm">
-                <label for="taskId">Task ID:</label>
-                <input type="text" id="taskId" required><br><br>
-
                 <label for="projectName">Project Name:</label>
                 <select id="projectName" required></select><br><br>
 
@@ -505,5 +537,4 @@
         </div>
     </div>
 </body>
-
 </html>
