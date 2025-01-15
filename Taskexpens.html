@@ -113,20 +113,6 @@ th {
 .add-expense-form button:hover {
     background-color: #0056b3;
 }
-
-.calculate-total-cost-button {
-    background-color: #ffc107;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 10px 0;
-}
-
-.calculate-total-cost-button:hover {
-    background-color: #e0a800;
-}
      </style>
 </head>
 <body>
@@ -214,6 +200,10 @@ th {
                 <!-- Expense rows will be added here dynamically -->
             </tbody>
         </table>
+        <div class="total">
+            Total Cost of Task: <span id="totalCost">0</span>
+        </div>
+    </div>
 
     <div class="container" id="archivedContainer" style="display:none;">
         <h1>Archived Tasks</h1>
@@ -244,7 +234,7 @@ th {
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -462,36 +452,39 @@ th {
             const archivedTasksTable = document.getElementById('archivedTasksTable');
             archivedTasksTable.innerHTML = '';
 
-            const newRow = archivedTasksTable.insertRow();
+            const archivedTasks = JSON.parse(localStorage.getItem('archivedTasks')) || [];
+            archivedTasks.forEach(task => {
+                const newRow = archivedTasksTable.insertRow();
 
-newRow.insertCell(0).innerText = task.date;
-newRow.insertCell(1).innerText = task.taskId;
-newRow.insertCell(2).innerText = task.projectName;
-newRow.insertCell(3).innerText = task.resourceName;
-newRow.insertCell(4).innerText = task.taskDescription;
-newRow.insertCell(5).innerText = task.supplier;
-newRow.insertCell(6).innerText = task.vat;
-newRow.insertCell(7).innerText = task.payee;
-newRow.insertCell(8).innerText = task.qty;
-newRow.insertCell(9).innerText = task.amount;
-newRow.insertCell(10).innerText = task.laborCost;
-newRow.insertCell(11).innerText = task.personnel;
-newRow.insertCell(12).innerText = task.total;
-});
+                newRow.insertCell(0).innerText = task.date;
+                newRow.insertCell(1).innerText = task.taskId;
+                newRow.insertCell(2).innerText = task.projectName;
+                newRow.insertCell(3).innerText = task.resourceName;
+                newRow.insertCell(4).innerText = task.taskDescription;
+                newRow.insertCell(4).innerText = task.taskDescription;
+                newRow.insertCell(5).innerText = task.supplier;
+                newRow.insertCell(6).innerText = task.vat;
+                newRow.insertCell(7).innerText = task.payee;
+                newRow.insertCell(8).innerText = task.qty;
+                newRow.insertCell(9).innerText = task.amount;
+                newRow.insertCell(10).innerText = task.laborCost;
+                newRow.insertCell(11).innerText = task.personnel;
+                newRow.insertCell(12).innerText = task.total;
+            });
 
-archivedContainer.style.display = 'block';
-}
+            archivedContainer.style.display = 'block';
+        }
 
-function viewMainTasks() {
-document.getElementById('archivedContainer').style.display = 'none';
-document.getElementById('mainContainer').style.display = 'block';
-}
+        function viewMainTasks() {
+            document.getElementById('archivedContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+        }
 
-// Load resource names when the page loads
-window.onload = function() {
-loadResourceNames();
-loadExpenses(); // Load existing expenses from Firebase
-};
-</script>
+        // Load resource names and existing expenses when the page loads
+        window.onload = function() {
+            loadResourceNames();
+            loadExpenses();
+        };
+    </script>
 </body>
 </html>
