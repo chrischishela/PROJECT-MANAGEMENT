@@ -276,28 +276,10 @@
         }
 
         // Move completed tasks to completedTasks.html
+        // Instead of removing the task, we mark it as archived in the tasks table
         function moveToCompletedTasks(task, taskKey) {
-            // Remove task from current tasks
-            const taskIndex = tasks.findIndex(t => t.key === taskKey);
-            if (taskIndex > -1) {
-                tasks.splice(taskIndex, 1);
-            }
-
-            // Add task to completed tasks
-            const completedTasksRef = ref(db, 'completedtasks/');
-            const newTaskRef = push(completedTasksRef);
-            set(newTaskRef, task).then(() => {
-                console.log("Task moved to completed tasks:", task);
-                const taskRef = ref(db, `tasks/${taskKey}`);
-                remove(taskRef).then(() => {
-                    console.log("Task removed from tasks:", task);
-                    loadTasks(); // Reload tasks after moving
-                }).catch((error) => {
-                    console.error("Error removing task from tasks:", error);
-                });
-            }).catch((error) => {
-                console.error("Error moving task to completed tasks:", error);
-            });
+            task.status = 'Archived';
+            updateTask(task, taskKey);
         }
 
         // Debounce function to limit the rate at which a function can fire.
@@ -362,7 +344,7 @@
                 taskIdInput.placeholder = 'Enter ID...';
 
                 // Lock input for completed tasks
-                if (task.status === 'Completed') {
+                if (task.status === 'Completed' || task.status === 'Archived') {
                     taskIdInput.disabled = true;
                 } else {
                     taskIdInput.addEventListener('input', debounce((event) => {
@@ -386,7 +368,7 @@
                 assignedToInput.placeholder = 'Type name here...';
 
                 // Lock input for completed tasks
-                if (task.status === 'Completed') {
+                if (task.status === 'Completed' || task.status === 'Archived') {
                     assignedToInput.disabled = true;
                 } else {
                     assignedToInput.addEventListener('input', debounce((event) => {
@@ -407,7 +389,7 @@
                 durationInput.placeholder = 'Enter duration...';
 
                 // Lock input for completed tasks
-                if (task.status === 'Completed') {
+                if (task.status === 'Completed' || task.status === 'Archived') {
                     durationInput.disabled = true;
                 } else {
                     durationInput.addEventListener('input', debounce((event) => {
@@ -417,8 +399,8 @@
                 }
                 durationCell.appendChild(durationInput);
 
-                // Only add actions if the task is not completed
-                if (task.status !== 'Completed') {
+                // Only add actions if the task is not completed or archived
+                if (task.status !== 'Completed' && task.status !== 'Archived') {
                     const actionsCell = row.insertCell(10);
                     const dropdown = document.createElement('div');
                     dropdown.classList.add('dropdown');
@@ -556,6 +538,30 @@
             </form>
         </div>
     </div>
-</body>
 
+   <!-- New Firebase script -->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyAADq3tI5EzMWP8eB69MgyYbcsW_Akcqc4",
+        authDomain: "chishela-4d6fa.firebaseapp.com",
+        projectId: "chishela-4d6fa",
+        storageBucket: "chishela-4d6fa.appspot.com",
+        messagingSenderId: "717715004324",
+        appId: "1:717715004324:web:ff821ff48227c4e1d97f31",
+        measurementId: "G-6513W7DMJ0"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+</script>
+</body>
 </html>
