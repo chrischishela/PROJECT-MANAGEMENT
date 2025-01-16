@@ -143,11 +143,18 @@
         }
     </style>
     <script type="module">
-        // Import the Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            updateDoc,
+            deleteDoc,
+            doc,
+            onSnapshot,
+        } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB2av1im8_wJNOin20npWlnGEBnG89MVU0",
             authDomain: "stranger-6b6cf.firebaseapp.com",
@@ -157,147 +164,137 @@
             appId: "1:833066708868:web:bf097bcee3141df4fe77d1",
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const formContainer = document.getElementById('formContainer');
-            const taskForm = document.getElementById('taskForm');
-            const taskTableBody = document.getElementById('taskTableBody');
-            const filterButtons = document.querySelectorAll('.filter-buttons button');
+        document.addEventListener("DOMContentLoaded", () => {
+            const formContainer = document.getElementById("formContainer");
+            const taskForm = document.getElementById("taskForm");
+            const taskTableBody = document.getElementById("taskTableBody");
+            const filterButtons = document.querySelectorAll(".filter-buttons button");
             let tasks = [];
 
-            // Load tasks from Firestore
             function loadTasks() {
-                const tasksRef = collection(db, 'tasks');
+                const tasksRef = collection(db, "tasks");
                 onSnapshot(tasksRef, (snapshot) => {
-                    tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    tasks = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
                     updateTable(tasks);
                 });
             }
 
-            // Save task to Firestore
             async function saveTask(task) {
                 try {
-                    await addDoc(collection(db, 'tasks'), task);
+                    await addDoc(collection(db, "tasks"), task);
                 } catch (error) {
-                    console.error("Error saving task to Firestore:", error);
+                    console.error("Error saving task:", error);
                 }
             }
 
-            // Update task in Firestore
             async function updateTask(taskId, updatedTask) {
                 try {
-                    const taskRef = doc(db, 'tasks', taskId);
+                    const taskRef = doc(db, "tasks", taskId);
                     await updateDoc(taskRef, updatedTask);
                 } catch (error) {
-                    console.error("Error updating task in Firestore:", error);
+                    console.error("Error updating task:", error);
                 }
             }
 
-            // Delete task from Firestore
             async function deleteTask(taskId) {
                 try {
-                    const taskRef = doc(db, 'tasks', taskId);
+                    const taskRef = doc(db, "tasks", taskId);
                     await deleteDoc(taskRef);
                 } catch (error) {
-                    console.error("Error deleting task from Firestore:", error);
+                    console.error("Error deleting task:", error);
                 }
             }
 
-            // Toggle the form visibility
             function toggleForm() {
-                if (formContainer.style.display === 'none' || formContainer.style.display === '') {
-                    formContainer.style.display = 'block';
-                } else {
-                    formContainer.style.display = 'none';
-                }
+                formContainer.style.display =
+                    formContainer.style.display === "none" || formContainer.style.display === ""
+                        ? "block"
+                        : "none";
             }
 
-            // Handle form submission
             async function addTask(event) {
                 event.preventDefault();
-                const taskDescription = document.getElementById('taskDescription').value;
-                const taskPriority = document.getElementById('taskPriority').value;
+                const taskDescription = document.getElementById("taskDescription").value;
+                const taskPriority = document.getElementById("taskPriority").value;
 
                 if (taskDescription && taskPriority) {
                     const task = {
                         description: taskDescription,
                         priority: taskPriority,
-                        dateAdded: new Date().toLocaleDateString(),
-                        status: 'active'
+                        dateAdded: new Date().toISOString(),
+                        status: "active",
                     };
 
                     await saveTask(task);
                     taskForm.reset();
-                    formContainer.style.display = 'none';
+                    toggleForm();
                 } else {
-                    alert('Please fill out all fields.');
+                    alert("Please fill out all fields.");
                 }
             }
 
-            // Mark task as completed
             async function markAsCompleted(taskId) {
-                const task = tasks.find(task => task.id === taskId);
+                const task = tasks.find((task) => task.id === taskId);
                 if (task) {
-                    task.status = 'completed';
+                    task.status = "completed";
                     await updateTask(taskId, task);
                 }
             }
 
-            // Delete task
             async function deleteTaskRow(taskId) {
                 await deleteTask(taskId);
             }
 
-            // Update the table with tasks
             function updateTable(tasks) {
-                taskTableBody.innerHTML = ''; // Clear the table
+                taskTableBody.innerHTML = "";
 
-                tasks.forEach(task => {
+                tasks.forEach((task) => {
                     const row = taskTableBody.insertRow();
                     row.insertCell(0).innerText = task.description;
                     row.insertCell(1).innerText = task.priority;
-                    row.insertCell(2).innerText = task.dateAdded;
+                    row.insertCell(2).innerText = new Date(task.dateAdded).toLocaleDateString();
 
                     const actionCell = row.insertCell(3);
-                    if (task.status === 'completed') {
-                        row.classList.add('completed');
-                        actionCell.innerText = 'Completed';
+                    if (task.status === "completed") {
+                        row.classList.add("completed");
+                        actionCell.innerText = "Completed";
                     } else {
-                        const completeButton = document.createElement('button');
-                        completeButton.innerText = 'Mark as Completed';
+                        const completeButton = document.createElement("button");
+                        completeButton.innerText = "Mark as Completed";
                         completeButton.onclick = () => markAsCompleted(task.id);
                         actionCell.appendChild(completeButton);
                     }
 
-                    const deleteButton = document.createElement('button');
-                    deleteButton.innerText = 'Delete';
-                    deleteButton.style.marginLeft = '10px';
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerText = "Delete";
+                    deleteButton.style.marginLeft = "10px";
                     deleteButton.onclick = () => deleteTaskRow(task.id);
                     actionCell.appendChild(deleteButton);
                 });
             }
 
-            // Filter tasks
             function filterTasks(status) {
-                const filteredTasks = tasks.filter(task => status === 'all' || task.status === status);
+                const filteredTasks =
+                    status === "all" ? tasks : tasks.filter((task) => task.status === status);
                 updateTable(filteredTasks);
             }
 
-            // Assign event listeners
-            document.querySelector('.toggle-button').addEventListener('click', toggleForm);
-            taskForm.addEventListener('submit', addTask);
+            document.querySelector(".toggle-button").addEventListener("click", toggleForm);
+            taskForm.addEventListener("submit", addTask);
 
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const status = button.getAttribute('data-status');
+            filterButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const status = button.getAttribute("data-status");
                     filterTasks(status);
                 });
             });
 
-            // Initial load of tasks from Firestore
             loadTasks();
         });
     </script>
@@ -312,7 +309,7 @@
         <div class="form-container" id="formContainer">
             <form id="taskForm">
                 <label for="taskDescription">Task Description:</label>
-                <input type="text" id="taskDescription" placeholder="Enter task description" required>
+                <input type="text" id="taskDescription" placeholder="Enter task description" required />
 
                 <label for="taskPriority">Priority:</label>
                 <select id="taskPriority" required>
@@ -340,9 +337,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="taskTableBody">
-                <!-- Dynamic rows will be added here -->
-            </tbody>
+            <tbody id="taskTableBody"></tbody>
         </table>
     </div>
 </body>
