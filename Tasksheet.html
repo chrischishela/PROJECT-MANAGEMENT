@@ -331,12 +331,10 @@ button[type="submit"]:hover {
     </div>
 
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-        
-        // Your web app's Firebase configuration
+    
         const firebaseConfig = {
             apiKey: "AIzaSyB2av1im8_wJNOin20npWlnGEBnG89MVU0",
             authDomain: "stranger-6b6cf.firebaseapp.com",
@@ -346,12 +344,11 @@ button[type="submit"]:hover {
             appId: "1:833066708868:web:bf097bcee3141df4fe77d1",
             measurementId: "G-27651QM317"
         };
-
-        // Initialize Firebase
+    
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
-
+    
         document.addEventListener('DOMContentLoaded', async function () {
             const taskForm = document.getElementById('taskForm');
             const taskModal = document.getElementById('taskModal');
@@ -362,7 +359,7 @@ button[type="submit"]:hover {
             const taskTableBody = document.querySelector('#taskTable tbody');
             const projectNameSelect = document.getElementById('projectName');
             const selectedProjectDiv = document.getElementById('selectedProject');
-
+    
             const projectCodes = {
                 "Hazida Limited": "HAZ-",
                 "Hazida Motors": "HM-",
@@ -387,45 +384,40 @@ button[type="submit"]:hover {
                 "Northmeads Flats 2": "NF2-",
                 "Fields Works": "FW-"
             };
-
-            projectNameSelect.addEventListener('change', function() {
+    
+            projectNameSelect.addEventListener('change', function () {
                 selectedProjectDiv.innerText = `Selected Project: ${projectNameSelect.value}`;
             });
-
-            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
-            async function saveTasks() {
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                // Save to Firestore
+    
+            let tasks = [];
+    
+            async function fetchTasksFromFirestore() {
                 const tasksCollection = collection(db, "tasks");
-
-                // Add or update tasks in Firestore
-                for (const task of tasks) {
-                    const taskDoc = doc(tasksCollection, task.taskId);
-                    await setDoc(taskDoc, task);
-                }
+                const snapshot = await getDocs(tasksCollection);
+                tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                loadTasks();
             }
-
+    
             function loadTasks(filter = 'none', statusFilter = 'all') {
                 taskTableBody.innerHTML = '';
                 let filteredTasks = tasks;
-
+    
                 if (filter !== 'none') {
                     filteredTasks = filteredTasks.filter(task => task.projectName === filter);
                 }
-
+    
                 if (statusFilter === 'active') {
                     filteredTasks = filteredTasks.filter(task => task.status === 'Active');
                 } else if (statusFilter === 'inactive') {
                     filteredTasks = filteredTasks.filter(task => task.status === 'Inactive');
                 }
-
+    
                 filteredTasks.sort((a, b) => {
                     if (a.priority === 'High' && b.priority !== 'High') return -1;
                     if (a.priority !== 'High' && b.priority === 'High') return 1;
                     return 0;
                 });
-
+    
                 filteredTasks.forEach((task, index) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -445,7 +437,7 @@ button[type="submit"]:hover {
                                 <div class="dropdown-content">
                                     <button onclick="updateTask(${index}, 'start')">Start</button>
                                     <button onclick="updateTask(${index}, 'complete')">Complete</button>
-                                    <button onclick="deleteTask(${index})">Delete</button>
+                                    <button onclick="deleteTask('${task.id}')">Delete</button>
                                 </div>
                             </div>
                         </td>
@@ -453,66 +445,23 @@ button[type="submit"]:hover {
                     taskTableBody.appendChild(row);
                 });
             }
-
-            async function fetchTasksFromFirestore() {
-                const tasksCollection = collection(db, "tasks");
-                const snapshot = await getDocs(tasksCollection);
-                const fetchedTasks = [];
-                snapshot.forEach(doc => {
-                    fetchedTasks.push(doc.data());
-                });
-                tasks = fetchedTasks;
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                loadTasks();
+    
+            async function deleteTask(taskId) {
+                await deleteDoc(doc(db, "tasks", taskId));
+                fetchTasksFromFirestore();
             }
-
-            function deleteTask(index) {
-                const task = tasks[index];
-                tasks.splice(index, 1);
-                saveTasks();
-                const taskDoc = doc(db, "tasks", task.taskId);
-                deleteDoc(taskDoc);
-                loadTasks();
+    
+            async function addTask(task) {
+                await addDoc(collection(db, "tasks"), task);
+                fetchTasksFromFirestore();
             }
-
-            function addTask(task) {
-                tasks.push(task);
-                saveTasks();
-                loadTasks();
-            }
-
-            function updateTask(index, action) {
-                const task = tasks[index];
-                if (action === 'start') {
-                    task.startDate = new Date().toLocaleDateString();
-                    task.status = 'Active';
-                } else if (action === 'complete') {
-                    task.endDate = new Date().toLocaleDateString();
-                    task.status = 'Completed';
-                    moveTaskToCompleted(task);
-                    tasks.splice(index, 1);
-                }
-                saveTasks();
-                loadTasks();
-            }
-
+    
             function generateTaskId(projectName) {
                 const code = projectCodes[projectName] || 'UNK-';
                 const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
                 return `${code}${randomNum}`;
             }
-
-            function moveTaskToCompleted(task) {
-                let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
-                completedTasks.push(task);
-                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-            }
-
-            function updateTaskField(index, field, value) {
-                tasks[index][field] = value;
-                saveTasks();
-            }
-
+    
             taskForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const newTask = {
@@ -521,91 +470,47 @@ button[type="submit"]:hover {
                     taskDescription: document.getElementById('taskDescription').value,
                     location: document.getElementById('location').value,
                     priority: document.getElementById('priority').value,
-                    duration: '', // Default, will be editable after adding
-                    status: 'Inactive', // Default status
-                    assignedTo: '', // Default, will be editable after adding
-                    startDate: 'Not set', // Default, will be set when task starts
-                    endDate: 'Not set' // Default, will be set when task completes
+                    duration: '',
+                    status: 'Inactive',
+                    assignedTo: '',
+                    startDate: 'Not set',
+                    endDate: 'Not set'
                 };
                 addTask(newTask);
                 taskForm.reset();
                 taskModal.style.display = 'none';
             });
-
+    
             addTaskBtn.addEventListener('click', function () {
                 taskModal.style.display = 'block';
             });
-
+    
             closeModal.addEventListener('click', function () {
                 taskModal.style.display = 'none';
             });
-
+    
             inactiveTaskBtn.addEventListener('click', function () {
                 loadTasks(document.getElementById('filterProjectDropdown').value, 'inactive');
             });
-
+    
             activeTaskBtn.addEventListener('click', function () {
                 loadTasks(document.getElementById('filterProjectDropdown').value, 'active');
             });
-
+    
             document.getElementById('filterProjectDropdown').addEventListener('change', function () {
                 const selectedFilter = this.value;
                 loadTasks(selectedFilter);
             });
-
-            document.getElementById('viewCompletedBtn').addEventListener('click', function () {
-                window.location.href = 'completedtasks.html';
-            });
-
-            // Listen for real-time updates
+    
             onSnapshot(collection(db, "tasks"), (snapshot) => {
-                const fetchedTasks = [];
-                snapshot.forEach(doc => {
-                    fetchedTasks.push(doc.data());
-                });
-                tasks = fetchedTasks;
-                localStorage.setItem('tasks', JSON.stringify(tasks));
+                tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 loadTasks();
             });
-
+    
             fetchTasksFromFirestore();
         });
-
-        // Ensure updateTask, updateTaskField, and deleteTask functions are accessible
-        window.updateTask = function(index, action) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const task = tasks[index];
-            if (action === 'start') {
-                task.startDate = new Date().toLocaleDateString();
-                task.status = 'Active';
-            } else if (action === 'complete') {
-                task.endDate = new Date().toLocaleDateString();
-                task.status = 'Completed';
-                const completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
-                completedTasks.push(task);
-                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-                tasks.splice(index, 1);
-            }
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            document.location.reload();
-        };
-
-        window.updateTaskField = function(index, field, value) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            tasks[index][field] = value;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        };
-
-        window.deleteTask = function(index) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const task = tasks[index];
-            tasks.splice(index, 1);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            const taskDoc = doc(db, "tasks", task.taskId);
-            deleteDoc(taskDoc);
-            document.location.reload();
-        };
     </script>
+    
 </body>
 
 </html>
