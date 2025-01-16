@@ -129,13 +129,12 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCFGX-J09YjbCe_u58yexo7Eg6VqWwPje0",
             authDomain: "project-management-a1c5e.firebaseapp.com",
-            databaseURL: "https://project-management-a1c5e-default-rtdb.firebaseio.com/",
             projectId: "project-management-a1c5e",
             storageBucket: "project-management-a1c5e.appspot.com",
             messagingSenderId: "662718236281",
@@ -144,7 +143,7 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const db = getFirestore(app);
 
         // Get elements from the DOM
         document.addEventListener('DOMContentLoaded', () => {
@@ -152,35 +151,31 @@
             const minutesForm = document.getElementById('minutesForm');
             const minutesTableBody = document.getElementById('minutesTableBody');
 
-            // Load minutes from Firebase
-            function loadMinutes() {
-                const minutesRef = ref(db, 'minutes/');
-                onValue(minutesRef, (snapshot) => {
-                    const data = snapshot.val();
-                    const minutes = data ? Object.entries(data) : [];
-                    updateTable(minutes);
-                });
+            // Load minutes from Firebase Firestore
+            async function loadMinutes() {
+                const querySnapshot = await getDocs(collection(db, 'minutes'));
+                const minutes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateTable(minutes);
             }
 
-            // Save minutes to Firebase
-            function saveMinutes(minute) {
-                const minutesRef = ref(db, 'minutes/');
-                const newMinuteRef = push(minutesRef);
-                set(newMinuteRef, minute).then(() => {
-                    console.log("Minute saved to Firebase:", minute);
-                }).catch((error) => {
-                    console.error("Error saving minute to Firebase:", error);
-                });
+            // Save minutes to Firebase Firestore
+            async function saveMinutes(minute) {
+                try {
+                    const docRef = await addDoc(collection(db, 'minutes'), minute);
+                    console.log("Minute saved to Firestore with ID:", docRef.id);
+                } catch (error) {
+                    console.error("Error saving minute to Firestore:", error);
+                }
             }
 
-            // Remove minutes from Firebase
-            function deleteMinutes(minuteId) {
-                const minuteRef = ref(db, `minutes/${minuteId}`);
-                remove(minuteRef).then(() => {
-                    console.log("Minute removed from Firebase:", minuteId);
-                }).catch((error) => {
-                    console.error("Error removing minute from Firebase:", error);
-                });
+            // Remove minutes from Firebase Firestore
+            async function deleteMinutes(minuteId) {
+                try {
+                    await deleteDoc(doc(db, 'minutes', minuteId));
+                    console.log("Minute removed from Firestore:", minuteId);
+                } catch (error) {
+                    console.error("Error removing minute from Firestore:", error);
+                }
             }
 
             // Toggle the form visibility
@@ -211,13 +206,15 @@
             }
 
             // Mark minutes as completed
-            function toggleMinutesCompletion(minuteId, row) {
-                const minuteRef = ref(db, `minutes/${minuteId}`);
-                update(minuteRef, { completed: !row.classList.contains('completed') }).then(() => {
+            async function toggleMinutesCompletion(minuteId, row) {
+                try {
+                    const minuteDocRef = doc(db, 'minutes', minuteId);
+                    const newStatus = !row.classList.contains('completed');
+                    await updateDoc(minuteDocRef, { completed: newStatus });
                     row.classList.toggle('completed');
-                }).catch((error) => {
+                } catch (error) {
                     console.error("Error updating minutes completion status:", error);
-                });
+                }
             }
 
             // Delete minutes
@@ -230,7 +227,7 @@
             function updateTable(minutes) {
                 minutesTableBody.innerHTML = ''; // Clear the table
 
-                minutes.forEach(([minuteId, minute]) => {
+                minutes.forEach(minute => {
                     const row = minutesTableBody.insertRow();
                     row.className = minute.completed ? 'completed' : '';
                     row.insertCell(0).innerText = minute.date;
@@ -239,18 +236,18 @@
                     const actionCell = row.insertCell(2);
                     const completeButton = document.createElement('button');
                     completeButton.innerText = minute.completed ? 'Undo' : 'Complete';
-                    completeButton.onclick = () => toggleMinutesCompletion(minuteId, row);
+                    completeButton.onclick = () => toggleMinutesCompletion(minute.id, row);
                     actionCell.appendChild(completeButton);
 
                     const deleteButton = document.createElement('button');
                     deleteButton.innerText = 'Delete';
                     deleteButton.style.marginLeft = '10px';
-                    deleteButton.onclick = () => deleteMinutesRow(minuteId, row);
+                    deleteButton.onclick = () => deleteMinutesRow(minute.id, row);
                     actionCell.appendChild(deleteButton);
                 });
             }
 
-            // Initial load of minutes from Firebase
+            // Initial load of minutes from Firebase Firestore
             loadMinutes();
 
             // Event listeners
