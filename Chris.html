@@ -142,73 +142,20 @@
             }
         }
     </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            getDocs,
-            updateDoc,
-            deleteDoc,
-            doc,
-            onSnapshot,
-        } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2av1im8_wJNOin20npWlnGEBnG89MVU0",
-            authDomain: "stranger-6b6cf.firebaseapp.com",
-            projectId: "stranger-6b6cf",
-            storageBucket: "stranger-6b6cf.appspot.com",
-            messagingSenderId: "833066708868",
-            appId: "1:833066708868:web:bf097bcee3141df4fe77d1",
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
+    <script>
         document.addEventListener("DOMContentLoaded", () => {
             const formContainer = document.getElementById("formContainer");
             const taskForm = document.getElementById("taskForm");
             const taskTableBody = document.getElementById("taskTableBody");
             const filterButtons = document.querySelectorAll(".filter-buttons button");
-            let tasks = [];
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            function saveTasks() {
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
 
             function loadTasks() {
-                const tasksRef = collection(db, "tasks");
-                onSnapshot(tasksRef, (snapshot) => {
-                    tasks = snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    updateTable(tasks);
-                });
-            }
-
-            async function saveTask(task) {
-                try {
-                    await addDoc(collection(db, "tasks"), task);
-                } catch (error) {
-                    console.error("Error saving task:", error);
-                }
-            }
-
-            async function updateTask(taskId, updatedTask) {
-                try {
-                    const taskRef = doc(db, "tasks", taskId);
-                    await updateDoc(taskRef, updatedTask);
-                } catch (error) {
-                    console.error("Error updating task:", error);
-                }
-            }
-
-            async function deleteTask(taskId) {
-                try {
-                    const taskRef = doc(db, "tasks", taskId);
-                    await deleteDoc(taskRef);
-                } catch (error) {
-                    console.error("Error deleting task:", error);
-                }
+                updateTable(tasks);
             }
 
             function toggleForm() {
@@ -218,37 +165,43 @@
                         : "none";
             }
 
-            async function addTask(event) {
+            function addTask(event) {
                 event.preventDefault();
                 const taskDescription = document.getElementById("taskDescription").value;
                 const taskPriority = document.getElementById("taskPriority").value;
 
                 if (taskDescription && taskPriority) {
                     const task = {
+                        id: new Date().getTime(),
                         description: taskDescription,
                         priority: taskPriority,
                         dateAdded: new Date().toISOString(),
                         status: "active",
                     };
 
-                    await saveTask(task);
+                    tasks.push(task);
+                    saveTasks();
                     taskForm.reset();
                     toggleForm();
+                    loadTasks();
                 } else {
                     alert("Please fill out all fields.");
                 }
             }
 
-            async function markAsCompleted(taskId) {
-                const task = tasks.find((task) => task.id === taskId);
+            function markAsCompleted(taskId) {
+                const task = tasks.find(task => task.id === taskId);
                 if (task) {
                     task.status = "completed";
-                    await updateTask(taskId, task);
+                    saveTasks();
+                    loadTasks();
                 }
             }
 
-            async function deleteTaskRow(taskId) {
-                await deleteTask(taskId);
+            function deleteTask(taskId) {
+                tasks = tasks.filter(task => task.id !== taskId);
+                saveTasks();
+                loadTasks();
             }
 
             function updateTable(tasks) {
@@ -274,14 +227,14 @@
                     const deleteButton = document.createElement("button");
                     deleteButton.innerText = "Delete";
                     deleteButton.style.marginLeft = "10px";
-                    deleteButton.onclick = () => deleteTaskRow(task.id);
+                    deleteButton.onclick = () => deleteTask(task.id);
                     actionCell.appendChild(deleteButton);
                 });
             }
 
             function filterTasks(status) {
                 const filteredTasks =
-                    status === "all" ? tasks : tasks.filter((task) => task.status === status);
+                    status === "all" ? tasks : tasks.filter(task => task.status === status);
                 updateTable(filteredTasks);
             }
 
