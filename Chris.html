@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Sheet</title>
+    <title>Chris To-Do</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -148,10 +148,11 @@
             const taskForm = document.getElementById("taskForm");
             const taskTableBody = document.getElementById("taskTableBody");
             const filterButtons = document.querySelectorAll(".filter-buttons button");
-            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            const localStorageKey = 'tasks_chris';
+            let tasks = JSON.parse(localStorage.getItem(localStorageKey)) || [];
 
             function saveTasks() {
-                localStorage.setItem("tasks", JSON.stringify(tasks));
+                localStorage.setItem(localStorageKey, JSON.stringify(tasks));
             }
 
             function loadTasks() {
