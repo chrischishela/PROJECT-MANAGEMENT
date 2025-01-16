@@ -291,7 +291,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
         
         // Your web app's Firebase configuration
@@ -356,20 +356,15 @@
                 localStorage.setItem('tasks', JSON.stringify(tasks));
                 // Save to Firestore
                 const tasksCollection = collection(db, "tasks");
-                const snapshot = await getDocs(tasksCollection);
 
-                // Delete existing tasks in Firestore (to prevent duplicates)
-                snapshot.forEach(async (doc) => {
-                    await deleteDoc(doc.ref);
-                });
-
-                // Add updated tasks to Firestore
+                // Add or update tasks in Firestore
                 for (const task of tasks) {
-                    await addDoc(tasksCollection, task);
+                    const taskDoc = doc(tasksCollection, task.taskId);
+                    await setDoc(taskDoc, task);
                 }
             }
 
-            async function loadTasks(filter = 'none', statusFilter = 'all') {
+            function loadTasks(filter = 'none', statusFilter = 'all') {
                 taskTableBody.innerHTML = '';
                 let filteredTasks = tasks;
 
@@ -417,9 +412,24 @@
                 });
             }
 
+            async function fetchTasksFromFirestore() {
+                const tasksCollection = collection(db, "tasks");
+                const snapshot = await getDocs(tasksCollection);
+                const fetchedTasks = [];
+                snapshot.forEach(doc => {
+                    fetchedTasks.push(doc.data());
+                });
+                tasks = fetchedTasks;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                loadTasks();
+            }
+
             function deleteTask(index) {
+                const task = tasks[index];
                 tasks.splice(index, 1);
                 saveTasks();
+                const taskDoc = doc(db, "tasks", task.taskId);
+                deleteDoc(taskDoc);
                 loadTasks();
             }
 
@@ -505,7 +515,18 @@
                 window.location.href = 'completedtasks.html';
             });
 
-            loadTasks();
+            // Listen for real-time updates
+            onSnapshot(collection(db, "tasks"), (snapshot) => {
+                const fetchedTasks = [];
+                snapshot.forEach(doc => {
+                    fetchedTasks.push(doc.data());
+                });
+                tasks = fetchedTasks;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                loadTasks();
+            });
+
+            fetchTasksFromFirestore();
         });
 
         // Ensure updateTask, updateTaskField, and deleteTask functions are accessible
@@ -535,8 +556,11 @@
 
         window.deleteTask = function(index) {
             const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const task = tasks[index];
             tasks.splice(index, 1);
             localStorage.setItem('tasks', JSON.stringify(tasks));
+            const taskDoc = doc(db, "tasks", task.taskId);
+            deleteDoc(taskDoc);
             document.location.reload();
         };
     </script>
