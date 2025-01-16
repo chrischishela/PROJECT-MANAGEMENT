@@ -176,6 +176,515 @@
         }
     </style>
 
+
+<body>
+    <header>
+        <h1>Task Sheet</h1>
+    </header>
+
+    <div class="button-container">
+        <select id="filterProjectDropdown">
+            <option value="none">None</option>
+            <option value="Hazida Limited">Hazida Limited</option>
+            <option value="Hazida Motors">Hazida Motors</option>
+            <option value="Hazida Foods">Hazida Foods</option>
+            <option value="Siganature lounge">Siganature lounge</option>
+            <option value="Freight and Passengers">Freight and Passengers</option>
+            <option value="Lumumba Showroom Ezone">Lumumba Showroom Ezone</option>
+            <option value="Manda Hill Ezone Store">Manda Hill Ezone Store</option>
+            <option value="Cento Ezone Store">Cento Ezone Store</option>
+            <option value="Cosmopolitan Ezone Store">Cosmopolitan Ezone Store</option>
+            <option value="Trident Ezone Store">Trident Ezone Store</option>
+            <option value="Kitwe Ezone Store">Kitwe Ezone Store</option>
+            <option value="Livingstone Ezone Store">Livingstone Ezone Store</option>
+            <option value="Mr Mussa">Mr Mussa</option>
+            <option value="Mr Ebrahim">Mr Ebrahim</option>
+            <option value="Madam Shirin">Madam Shirin</option>
+            <option value="Mr Ishmil">Mr Ishmil</option>
+            <option value="Mr Shabbir">Mr Shabbir</option>
+            <option value="Mr Riaz">Mr Riaz</option>
+            <option value="Mr Faiyaz">Mr Faiyaz</option>
+            <option value="Northmeads Flats 1">Northmeads Flats 1</option>
+            <option value="Northmeads Flats 2">Northmeads Flats 2</option>
+            <option value="Fields Works">Fields Works</option>
+        </select>
+        <button id="inactiveTaskBtn">Inactive Tasks</button>
+        <button id="activeTaskBtn">Active Tasks</button>
+        <button id="addTaskBtn">Add Task</button>
+        <button id="viewCompletedBtn">View Completed Tasks</button>
+    </div>
+
+    <table id="taskTable">
+        <thead>
+            <tr>
+                <th>Task ID</th>
+                <th>Project Name</th>
+                <th>Task Description</th>
+                <th>Location</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Duration (days)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Task rows will be added dynamically here -->
+        </tbody>
+    </table>
+
+    <!-- Modal for adding tasks -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Add Task</h2>
+            <form id="taskForm">
+                <label for="projectName">Project Name:</label>
+                <select id="projectName" required>
+                    <option value="Hazida Limited">Hazida Limited</option>
+                    <option value="Hazida Motors">Hazida Motors</option>
+                    <option value="Hazida Foods">Hazida Foods</option>
+                    <option value="Siganature lounge">Siganature lounge</option>
+                    <option value="Freight and Passengers">Freight and Passengers</option>
+                    <option value="Lumumba Showroom Ezone">Lumumba Showroom Ezone</option>
+                    <option value="Manda Hill Ezone Store">Manda Hill Ezone Store</option>
+                    <option value="Cento Ezone Store">Cento Ezone Store</option>
+                    <option value="Cosmopolitan Ezone Store">Cosmopolitan Ezone Store</option>
+                    <option value="Trident Ezone Store">Trident Ezone Store</option>
+                    <option value="Kitwe Ezone Store">Kitwe Ezone Store</option>
+                    <option value="Livingstone Ezone Store">Livingstone Ezone Store</option>
+                    <option value="Mr Mussa">Mr Mussa</option>
+                    <option value="Mr Ebrahim">Mr Ebrahim</option>
+                    <option value="Madam Shirin">Madam Shirin</option>
+                    <option value="Mr Ishmil">Mr Ishmil</option>
+                    <option value="Mr Shabbir">Mr Shabbir</option>
+                    <option value="Mr Riaz">Mr Riaz</option>
+                    <option value="Mr Faiyaz">Mr Faiyaz</option>
+                    <option value="Northmeads Flats 1">Northmeads Flats 1</option>
+                    <option value="Northmeads Flats 2">Northmeads Flats 2</option>
+                    <option value="Fields Works">Fields Works</option>
+                </select><br><br>
+
+                <div id="selectedProject"></div>
+
+                <label for="taskDescription">Task Description:</label>
+                <input type="text" id="taskDescription" required><br><br>
+
+                <label for="location">Location:</label>
+                <input type="text" id="location" required><br><br>
+
+                <label for="priority">Priority:</label>
+                <select id="priority">
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select><br><br>
+
+                <button type="submit">Save Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const taskForm = document.getElementById('taskForm');
+            const taskModal = document.getElementById('taskModal');
+            const closeModal = document.getElementById('closeModal');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const inactiveTaskBtn = document.getElementById('inactiveTaskBtn');
+            const activeTaskBtn = document.getElementById('activeTaskBtn');
+            const taskTableBody = document.querySelector('#taskTable tbody');
+            const projectNameSelect = document.getElementById('projectName');
+            const selectedProjectDiv = document.getElementById('selectedProject');
+
+            const projectCodes = {
+                "Hazida Limited": "HAZ-",
+                "Hazida Motors": "HM-",
+                "Hazida Foods": "HF-",
+                "Siganature lounge": "SL-",
+                "Freight and Passengers": "FP-",
+                "Lumumba Showroom Ezone": "LSE-",
+                "Manda Hill Ezone Store": "MHE-",
+                "Cento Ezone Store": "CES-",
+                "Cosmopolitan Ezone Store": "COS-",
+                "Trident Ezone Store": "TES-",
+                "Kitwe Ezone Store": "KES-",
+                "Livingstone Ezone Store": "LES-",
+                "Mr Mussa": "MM-",
+                "Mr Ebrahim": "ME-",
+                "Madam Shirin": "MS-",
+                "Mr Ishmil": "MI-",
+                "Mr Shabbir": "MSH-",
+                "Mr Riaz": "MR-",
+                "Mr Faiyaz": "MF-",
+                "Northmeads Flats 1": "NF1-",
+                "Northmeads Flats 2": "NF2-",
+                "Fields Works": "FW-"
+            };
+
+            projectNameSelect.addEventListener('change', function() {
+                selectedProjectDiv.innerText = `Selected Project: ${projectNameSelect.value}`;
+            });
+
+            let tasks = JSON.parse(localStorage.getItem('tasks_tasksheet')) || [];
+
+            function saveTasks() {
+                localStorage.setItem('tasks_tasksheet', JSON.stringify(tasks));
+            }
+
+            function loadTasks(filter = 'none', statusFilter = 'all') {
+                taskTableBody.innerHTML = '';
+                let filteredTasks = tasks;
+
+                if (filter !== 'none') {
+                    filteredTasks = filteredTasks.filter(task => task.projectName === filter);
+                }
+
+                if (statusFilter === 'active') {
+                    filteredTasks = filteredTasks.filter(task => task.status === 'Active');
+                } else if (statusFilter === 'inactive') {
+                    filteredTasks = filteredTasks.filter(task => task.status === 'Inactive');
+                }
+
+                filteredTasks.sort((a, b) => {
+                    if (a.priority === 'High' && b.priority !== 'High') return -1;
+                    if (a.priority !== 'High' && b.priority === 'High') return 1;
+                    return 0;
+                });
+
+                filteredTasks.forEach((task, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${task.taskId}</td>
+                        <td>${task.projectName}</td>
+                        <td>${task.taskDescription}</td>
+                        <td>${task.location}</td>
+                        <td>${task.priority}</td>
+                        <td>${task.status}</td>
+                        <td contenteditable="true" onblur="updateTaskField(${index}, 'assignedTo', this.innerText)">${task.assignedTo}</td>
+                        <td>${task.startDate}</td>
+                        <td>${task.endDate}</td>
+                        <td contenteditable="true" onblur="updateTaskField(${index}, 'duration', this.innerText)">${task.duration}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="dropbtn">Actions</button>
+                                <div class="dropdown-content">
+                                    <button onclick="updateTask(${index}, 'start')">Start</button>
+                                    <button onclick="updateTask(${index}, 'complete')">Complete</button>
+                                    <button onclick="deleteTask(${index})">Delete</button>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    taskTableBody.appendChild(row);
+                });
+            }
+
+            function deleteTask(index) {
+                tasks.splice(index, 1);
+                saveTasks();
+                loadTasks();
+            }
+
+            function addTask(task) {
+                tasks.push(task);
+                saveTasks();
+                loadTasks();
+            }
+
+            function updateTask(index, action) {
+                const task = tasks[index];
+                if (action === 'start') {
+                    task.startDate = new Date().toLocaleDateString();
+                    task.status = 'Active';
+                } else if (action === 'complete') {
+                    task.endDate = new Date().toLocaleDateString();
+                    task.status = 'Completed';
+                    moveTaskToCompleted(task);
+                    tasks.splice(index, 1);
+                }
+                saveTasks();
+                loadTasks();
+            }
+
+            function generateTaskId(projectName) {
+                const code = projectCodes[projectName] || 'UNK-';
+                const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                return `${code}${randomNum}`;
+            }
+
+            function moveTaskToCompleted(task) {
+                let completedTasks = JSON.parse(localStorage.getItem('completedTasks_tasksheet')) || [];
+                completedTasks.push(task);
+                localStorage.setItem('completedTasks_tasksheet', JSON.stringify(completedTasks));
+            }
+
+            function updateTaskField(index, field, value) {
+                tasks[index][field] = value;
+                saveTasks();
+            }
+
+            taskForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const newTask = {
+                    taskId: generateTaskId(document.getElementById('projectName').value),
+                    projectName: document.getElementById('projectName').value,
+                    taskDescription: document.getElementById('taskDescription').value,
+                    location: document.getElementById('location').value,
+                    priority: document.getElementById('priority').value,
+                    duration: '', // Default, will be editable after adding
+                    status: 'Inactive', // Default status
+                    assignedTo: '', // Default, will be editable after adding
+                    startDate: 'Not set', // Default, will be set when task starts
+                    endDate: 'Not set' // Default, will be set when task completes
+                };
+                addTask(newTask);
+                taskForm.reset();
+                taskModal.style.display = 'none';
+            });
+
+            addTaskBtn.addEventListener('click', function () {
+                taskModal.style.display = 'block';
+            });
+
+            closeModal.addEventListener('click', function () {
+                taskModal.style.display = 'none';
+            });
+
+            inactiveTaskBtn.addEventListener('click', function () {
+                loadTasks(document.getElementById('filterProjectDropdown').value, 'inactive');
+            });
+
+            activeTaskBtn.addEventListener('click', function () {
+                loadTasks(document.getElementById('filterProjectDropdown').value, 'active');
+            });
+
+            document.getElementById('filterProjectDropdown').addEventListener('change', function () {
+                const selectedFilter = this.value;
+                loadTasks(selectedFilter);
+            });
+
+            document.getElementById('viewCompletedBtn').addEventListener('click', function () {
+                window.location.href = 'completedtasks.html';
+            });
+
+            loadTasks();
+        });
+
+        // Ensure updateTask, updateTaskField, and deleteTask functions are accessible
+        window.updateTask = function(index, action) {
+            const tasks = JSON.parse(localStorage.getItem('tasks_tasksheet')) || [];
+            const task = tasks[index];
+            if (action === 'start') {
+                task.startDate = new Date().toLocaleDateString();
+                task.status = 'Active';
+            } else if (action === 'complete') {
+                task.endDate = new Date().toLocaleDateString();
+                task.status = 'Completed';
+                const completedTasks = JSON.parse(localStorage.getItem('completedTasks_tasksheet')) || [];
+                completedTasks.push(task);
+                localStorage.setItem('completedTasks_tasksheet', JSON.stringify(completedTasks));
+                tasks.splice(index, 1);
+            }
+            localStorage.setItem('tasks_tasksheet', JSON.stringify(tasks));
+            document.location.reload();
+        };
+
+        window.updateTaskField = function(index, field, value) {
+            const tasks = JSON.parse(localStorage.getItem('tasks_tasksheet')) || [];
+            tasks[index][field] = value;
+            localStorage.setItem('tasks_tasksheet', JSON.stringify(tasks));
+        };
+
+        window.deleteTask = function(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks_tasksheet')) || [];
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks_tasksheet', JSON.stringify(tasks));
+            document.location.reload();
+        };
+    </script>
+</body>
+
+</html><!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            margin: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .button-container button,
+        .button-container select {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-container button:hover,
+        .button-container select:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        th, td {
+            min-width: 120px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            float: right;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #4CAF50;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content button {
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            background-color: #4CAF50;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #45a049;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown button:hover {
+            background-color: #090b09;
+        }
+
+        input[type="text"], select {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+
 </head>
 
 <body>
