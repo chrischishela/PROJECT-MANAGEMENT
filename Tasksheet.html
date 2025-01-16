@@ -7,215 +7,173 @@
     <title>Task Sheet</title>
     <style>
         body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-}
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
 
-header {
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-.button-container {
-    margin: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
+        .button-container {
+            margin: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-.button-container button,
-.button-container select {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
+        .button-container button,
+        .button-container select {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-.button-container button:hover,
-.button-container select:hover {
-    background-color: #45a049;
-}
+        .button-container button:hover,
+        .button-container select:hover {
+            background-color: #45a049;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px auto;
-    overflow-x: auto;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
 
-th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
 
-th {
-    background-color: #4CAF50;
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
 
-th, td {
-    min-width: 120px;
-}
+        th, td {
+            min-width: 120px;
+        }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-}
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
 
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    float: right;
-    cursor: pointer;
-}
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            float: right;
+            cursor: pointer;
+        }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #4CAF50;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #4CAF50;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-.dropdown-content button {
-    color: white;
-    padding: 12px 16px;
-    text-align: left;
-    background-color: #4CAF50;
-    border: none;
-    width: 100%;
-    cursor: pointer;
-}
+        .dropdown-content button {
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            background-color: #4CAF50;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
 
-.dropdown-content button:hover {
-    background-color: #45a049;
-}
+        .dropdown-content button:hover {
+            background-color: #45a049;
+        }
 
-.dropdown:hover .dropdown-content {
-    display: block;
-}
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-.dropdown button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-}
+        .dropdown button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
 
-.dropdown button:hover {
-    background-color: #090b09;
-}
+        .dropdown button:hover {
+            background-color: #090b09;
+        }
 
-input[type="text"], select {
-    padding: 10px;
-    width: 100%;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
+        input[type="text"], select {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
 
-button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-button[type="submit"]:hover {
-    background-color: #45a049;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 600px) {
-    .button-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-
-    thead tr {
-        display: none;
-    }
-
-    tr {
-        margin-bottom: 15px;
-    }
-
-    td {
-        border: none;
-        position: relative;
-        padding-left: 50%;
-        text-align: right;
-    }
-
-    td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 0;
-        width: 50%;
-        padding-left: 15px;
-        font-weight: bold;
-        text-align: left;
-    }
-
-    .modal-content {
-        width: 90%;
-        max-width: 100%;
-    }
-}
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
     </style>
 
 </head>
@@ -330,26 +288,8 @@ button[type="submit"]:hover {
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-    
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2av1im8_wJNOin20npWlnGEBnG89MVU0",
-            authDomain: "stranger-6b6cf.firebaseapp.com",
-            projectId: "stranger-6b6cf",
-            storageBucket: "stranger-6b6cf.firebasestorage.app",
-            messagingSenderId: "833066708868",
-            appId: "1:833066708868:web:bf097bcee3141df4fe77d1",
-            measurementId: "G-27651QM317"
-        };
-    
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-    
-        document.addEventListener('DOMContentLoaded', async function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const taskForm = document.getElementById('taskForm');
             const taskModal = document.getElementById('taskModal');
             const closeModal = document.getElementById('closeModal');
@@ -359,7 +299,7 @@ button[type="submit"]:hover {
             const taskTableBody = document.querySelector('#taskTable tbody');
             const projectNameSelect = document.getElementById('projectName');
             const selectedProjectDiv = document.getElementById('selectedProject');
-    
+
             const projectCodes = {
                 "Hazida Limited": "HAZ-",
                 "Hazida Motors": "HM-",
@@ -384,40 +324,37 @@ button[type="submit"]:hover {
                 "Northmeads Flats 2": "NF2-",
                 "Fields Works": "FW-"
             };
-    
-            projectNameSelect.addEventListener('change', function () {
+
+            projectNameSelect.addEventListener('change', function() {
                 selectedProjectDiv.innerText = `Selected Project: ${projectNameSelect.value}`;
             });
-    
-            let tasks = [];
-    
-            async function fetchTasksFromFirestore() {
-                const tasksCollection = collection(db, "tasks");
-                const snapshot = await getDocs(tasksCollection);
-                tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                loadTasks();
+
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
             }
-    
+
             function loadTasks(filter = 'none', statusFilter = 'all') {
                 taskTableBody.innerHTML = '';
                 let filteredTasks = tasks;
-    
+
                 if (filter !== 'none') {
                     filteredTasks = filteredTasks.filter(task => task.projectName === filter);
                 }
-    
+
                 if (statusFilter === 'active') {
                     filteredTasks = filteredTasks.filter(task => task.status === 'Active');
                 } else if (statusFilter === 'inactive') {
                     filteredTasks = filteredTasks.filter(task => task.status === 'Inactive');
                 }
-    
+
                 filteredTasks.sort((a, b) => {
                     if (a.priority === 'High' && b.priority !== 'High') return -1;
                     if (a.priority !== 'High' && b.priority === 'High') return 1;
                     return 0;
                 });
-    
+
                 filteredTasks.forEach((task, index) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -437,7 +374,7 @@ button[type="submit"]:hover {
                                 <div class="dropdown-content">
                                     <button onclick="updateTask(${index}, 'start')">Start</button>
                                     <button onclick="updateTask(${index}, 'complete')">Complete</button>
-                                    <button onclick="deleteTask('${task.id}')">Delete</button>
+                                    <button onclick="deleteTask(${index})">Delete</button>
                                 </div>
                             </div>
                         </td>
@@ -445,23 +382,51 @@ button[type="submit"]:hover {
                     taskTableBody.appendChild(row);
                 });
             }
-    
-            async function deleteTask(taskId) {
-                await deleteDoc(doc(db, "tasks", taskId));
-                fetchTasksFromFirestore();
+
+            function deleteTask(index) {
+                tasks.splice(index, 1);
+                saveTasks();
+                loadTasks();
             }
-    
-            async function addTask(task) {
-                await addDoc(collection(db, "tasks"), task);
-                fetchTasksFromFirestore();
+
+            function addTask(task) {
+                tasks.push(task);
+                saveTasks();
+                loadTasks();
             }
-    
+
+            function updateTask(index, action) {
+                const task = tasks[index];
+                if (action === 'start') {
+                    task.startDate = new Date().toLocaleDateString();
+                    task.status = 'Active';
+                } else if (action === 'complete') {
+                    task.endDate = new Date().toLocaleDateString();
+                    task.status = 'Completed';
+                    moveTaskToCompleted(task);
+                    tasks.splice(index, 1);
+                }
+                saveTasks();
+                loadTasks();
+            }
+
             function generateTaskId(projectName) {
                 const code = projectCodes[projectName] || 'UNK-';
                 const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
                 return `${code}${randomNum}`;
             }
-    
+
+            function moveTaskToCompleted(task) {
+                let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+                completedTasks.push(task);
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            }
+
+            function updateTaskField(index, field, value) {
+                tasks[index][field] = value;
+                saveTasks();
+            }
+
             taskForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const newTask = {
@@ -470,47 +435,78 @@ button[type="submit"]:hover {
                     taskDescription: document.getElementById('taskDescription').value,
                     location: document.getElementById('location').value,
                     priority: document.getElementById('priority').value,
-                    duration: '',
-                    status: 'Inactive',
-                    assignedTo: '',
-                    startDate: 'Not set',
-                    endDate: 'Not set'
+                    duration: '', // Default, will be editable after adding
+                    status: 'Inactive', // Default status
+                    assignedTo: '', // Default, will be editable after adding
+                    startDate: 'Not set', // Default, will be set when task starts
+                    endDate: 'Not set' // Default, will be set when task completes
                 };
                 addTask(newTask);
                 taskForm.reset();
                 taskModal.style.display = 'none';
             });
-    
+
             addTaskBtn.addEventListener('click', function () {
                 taskModal.style.display = 'block';
             });
-    
+
             closeModal.addEventListener('click', function () {
                 taskModal.style.display = 'none';
             });
-    
+
             inactiveTaskBtn.addEventListener('click', function () {
                 loadTasks(document.getElementById('filterProjectDropdown').value, 'inactive');
             });
-    
+
             activeTaskBtn.addEventListener('click', function () {
                 loadTasks(document.getElementById('filterProjectDropdown').value, 'active');
             });
-    
+
             document.getElementById('filterProjectDropdown').addEventListener('change', function () {
                 const selectedFilter = this.value;
                 loadTasks(selectedFilter);
             });
-    
-            onSnapshot(collection(db, "tasks"), (snapshot) => {
-                tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                loadTasks();
+
+            document.getElementById('viewCompletedBtn').addEventListener('click', function () {
+                window.location.href = 'completedtasks.html';
             });
-    
-            fetchTasksFromFirestore();
+
+            // Initial load of tasks
+            loadTasks();
         });
+
+        // Ensure updateTask, updateTaskField, and deleteTask functions are accessible
+        window.updateTask = function(index, action) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const task = tasks[index];
+            if (action === 'start') {
+                task.startDate = new Date().toLocaleDateString();
+                task.status = 'Active';
+            } else if (action === 'complete') {
+                task.endDate = new Date().toLocaleDateString();
+                task.status = 'Completed';
+                const completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+                completedTasks.push(task);
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                tasks.splice(index, 1);
+            }
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            document.location.reload();
+        };
+
+        window.updateTaskField = function(index, field, value) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks[index][field] = value;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        };
+
+        window.deleteTask = function(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            document.location.reload();
+        };
     </script>
-    
 </body>
 
 </html>
